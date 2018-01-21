@@ -1,11 +1,13 @@
 package ua.home.stat_shop.persistence.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
@@ -13,6 +15,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Document
 public class Product {
 
     @Id
@@ -22,6 +25,7 @@ public class Product {
     private Integer discount;
 
     @DBRef
+    @JsonIgnore
     private Category category;
     private Set<Attribute> attributes;
 

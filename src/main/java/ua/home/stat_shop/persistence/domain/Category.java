@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
 
@@ -12,15 +14,23 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Document
 public class Category {
 
     @Id
     private String id;
-    private String name;
+    private Boolean subCategory;
+    @DBRef
+    private Category category;
     private Map<String, String> localizedNames;
 
-    public Category(String name, Map<String, String> localizedNames) {
-        this.name = name;
+    public Category(Map<String, String> localizedNames) {
+        this.subCategory = false;
         this.localizedNames = localizedNames;
+    }
+
+    public Category(Map<String, String> localizedNames, Category category) {
+        this.subCategory = true;
+        this.category = category;
     }
 }

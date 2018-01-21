@@ -1,9 +1,9 @@
-package ua.home.stat_shop.persistence.domain;
+package ua.home.stat_shop.persistence.constants;
 
 import lombok.Getter;
 
 @Getter
-enum AttributeType {
+public enum AttributeType {
 
     NOT_LOCALIZED("not_localized"),
     LOCALIZED_NAMES("localized_names"),

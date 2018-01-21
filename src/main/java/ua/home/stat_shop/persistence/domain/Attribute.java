@@ -1,12 +1,19 @@
 package ua.home.stat_shop.persistence.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ua.home.stat_shop.persistence.constants.AttributeType;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Attribute {
 
     private String name;
@@ -19,20 +26,25 @@ public class Attribute {
         this.name = multivaluedAttribute.getName();
         this.type = multivaluedAttribute.getType();
         if (this.type.equals(AttributeType.NOT_LOCALIZED.getType())) {
-            this.value = multivaluedAttribute.getValues()
-                    .stream().filter(v -> v.equals(value))
-                    .findFirst().orElse(null);
+            this.value = getNonLocalizedValue(value, multivaluedAttribute.getValues());
         } else if (this.type.equals(AttributeType.LOCALIZED_NAMES.getType())) {
             this.localizedNames = multivaluedAttribute.getLocalizedNames();
-            this.value = multivaluedAttribute.getValues()
-                    .stream().filter(v -> v.equals(value))
-                    .findFirst().orElse(null);
+            this.value = getNonLocalizedValue(value, multivaluedAttribute.getValues());
         } else {
             this.localizedNames = multivaluedAttribute.getLocalizedNames();
-            this.localizedValues = multivaluedAttribute.getLocalizedValues().stream()
-                    .filter(valMap -> valMap.entrySet().stream()
-                            .anyMatch(entry -> entry.getValue().equals(value)))
-                    .findFirst().orElse(null);
+            this.localizedValues = getLocalizedValue(value, multivaluedAttribute.getLocalizedValues());
         }
+    }
+
+    private String getNonLocalizedValue(String value, Set<String> values) {
+        return values.stream().filter(v -> v.equals(value))
+                .findFirst().orElse(null);
+    }
+
+    private Map<String, String> getLocalizedValue(String value, List<Map<String, String>> values) {
+        return values.stream()
+                .filter(valMap -> valMap.entrySet().stream()
+                        .anyMatch(entry -> entry.getValue().equals(value)))
+                .findFirst().orElse(null);
     }
 }

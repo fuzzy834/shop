@@ -1,4 +1,4 @@
-package ua.home.stat_shop.persistence.domain;
+package ua.home.stat_shop.persistence.constants;
 
 import lombok.Getter;
 
