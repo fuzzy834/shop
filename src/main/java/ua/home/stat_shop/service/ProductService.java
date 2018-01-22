@@ -11,8 +11,10 @@ import java.util.List;
 public interface ProductService {
 
     Page<Product> findAll(Pageable pageable);
-    Page<Product> findProductByAttributes(List<Attribute> attributes, Pageable pageable);
-    Page<Product> findProductByCategory(Category category, Pageable pageable);
-    Page<Product> findProductByAttributesAndCategory(List<Attribute> attributes, Category category, Pageable pageable);
 
+    Page<Product> findProductByAttributes(List<Attribute> attributes, Pageable pageable);
+
+    Page<Product> findProductByCategory(Category category, Pageable pageable);
+
+    Page<Product> findProductByAttributesAndCategory(List<Attribute> attributes, Category category, Pageable pageable);
 }

@@ -11,9 +11,11 @@ import java.util.List;
 
 public interface ProductRepository extends MongoRepository<Product, String> {
 
+    //TODO: fix, not working
     Page<Product> findProductByAttributes(List<Attribute> attributes, Pageable pageable);
 
     Page<Product> findProductByCategory(Category category, Pageable pageable);
 
+    //TODO: fix, not working
     Page<Product> findProductByAttributesAndCategory(List<Attribute> attributes, Category category, Pageable pageable);
 }

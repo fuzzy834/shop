@@ -1,5 +1,7 @@
 package ua.home.stat_shop.persistence.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,12 +17,14 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Category {
 
     @Id
     private String id;
     private Boolean subCategory;
     @DBRef
+    @JsonIgnore
     private Category category;
     private Map<String, String> localizedNames;
 
