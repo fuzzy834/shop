@@ -23,9 +23,10 @@ public class Category {
     @Id
     private String id;
     private Boolean subCategory;
-    @DBRef
+
     @JsonIgnore
-    private Category category;
+    @DBRef(lazy = true)
+    private Category parent;
     private Map<String, String> localizedNames;
 
     public Category(Map<String, String> localizedNames) {
@@ -35,6 +36,6 @@ public class Category {
 
     public Category(Map<String, String> localizedNames, Category category) {
         this.subCategory = true;
-        this.category = category;
+        this.parent = category;
     }
 }

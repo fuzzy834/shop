@@ -26,8 +26,8 @@ public class Product {
     private Double bulkPrice;
     private Integer discount;
 
-    @DBRef
     @JsonIgnore
+    @DBRef(lazy = true)
     private Category category;
     private Set<Attribute> attributes;
 
