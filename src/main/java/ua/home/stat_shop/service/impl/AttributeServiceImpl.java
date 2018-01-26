@@ -3,7 +3,7 @@ package ua.home.stat_shop.service.impl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ua.home.stat_shop.persistence.domain.MultivaluedAttribute;
+import ua.home.stat_shop.persistence.domain.Attribute;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.service.AttributeService;
 
@@ -20,12 +20,12 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public MultivaluedAttribute findAttributeById(String id) {
+    public Attribute findAttributeById(String id) {
         return attributeRepository.findOne(id);
     }
 
     @Override
-    public List<MultivaluedAttribute> findAttributesByIds(List<String> ids) {
+    public List<Attribute> findAttributesByIds(List<String> ids) {
         return Lists.newArrayList(attributeRepository.findAll(ids));
     }
 }

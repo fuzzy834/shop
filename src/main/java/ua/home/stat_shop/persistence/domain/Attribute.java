@@ -1,10 +1,11 @@
 package ua.home.stat_shop.persistence.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import ua.home.stat_shop.persistence.constants.AttributeType;
 
 import java.util.List;
@@ -14,39 +15,41 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@Document
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Attribute {
 
+    @Id
+    private String id;
     private String name;
-    private String value;
     private String type;
+    private Boolean filterOn;
+    private Set<String> values;
     private Map<String, String> localizedNames;
-    private Map<String, String> localizedValues;
+    private List<Map<String, String>> localizedValues;
 
-    public Attribute(MultivaluedAttribute multivaluedAttribute, String value) {
-        this.name = multivaluedAttribute.getName();
-        this.type = multivaluedAttribute.getType();
-        if (this.type.equals(AttributeType.NOT_LOCALIZED.getType())) {
-            this.value = getNonLocalizedValue(value, multivaluedAttribute.getValues());
-        } else if (this.type.equals(AttributeType.LOCALIZED_NAMES.getType())) {
-            this.localizedNames = multivaluedAttribute.getLocalizedNames();
-            this.value = getNonLocalizedValue(value, multivaluedAttribute.getValues());
-        } else {
-            this.localizedNames = multivaluedAttribute.getLocalizedNames();
-            this.localizedValues = getLocalizedValue(value, multivaluedAttribute.getLocalizedValues());
-        }
+    public Attribute(String name, Set<String> values, Boolean filterOn) {
+        this.name = name;
+        this.values = values;
+        this.type = AttributeType.NOT_LOCALIZED.getType();
+        this.filterOn = filterOn;
     }
 
-    private String getNonLocalizedValue(String value, Set<String> values) {
-        return values.stream().filter(v -> v.equals(value))
-                .findFirst().orElse(null);
+    public Attribute(Map<String, String> localizedNames, Set<String> values, Boolean filterOn) {
+        this.name = localizedNames.entrySet().iterator().next().getValue();
+        this.values = values;
+        this.type = AttributeType.LOCALIZED_NAMES.getType();
+        this.localizedNames = localizedNames;
+        this.filterOn = filterOn;
     }
 
-    private Map<String, String> getLocalizedValue(String value, List<Map<String, String>> values) {
-        return values.stream()
-                .filter(valMap -> valMap.entrySet().stream()
-                        .anyMatch(entry -> entry.getValue().equals(value)))
-                .findFirst().orElse(null);
+    public Attribute(Map<String, String> localizedNames, List<Map<String, String>> localizedValues, Boolean filterOn) {
+        this.name = localizedNames.entrySet().iterator().next().getValue();
+        this.type = AttributeType.LOCALIZED_NAMES_AND_VALUES.getType();
+        this.localizedNames = localizedNames;
+        this.localizedValues = localizedValues;
+        this.filterOn = filterOn;
     }
 }
+
+

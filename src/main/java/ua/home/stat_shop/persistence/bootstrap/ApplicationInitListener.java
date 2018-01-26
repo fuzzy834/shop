@@ -8,10 +8,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import ua.home.stat_shop.persistence.constants.LangCodes;
-import ua.home.stat_shop.persistence.domain.Attribute;
-import ua.home.stat_shop.persistence.domain.Category;
-import ua.home.stat_shop.persistence.domain.MultivaluedAttribute;
-import ua.home.stat_shop.persistence.domain.Product;
+import ua.home.stat_shop.persistence.domain.*;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
@@ -40,7 +37,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         attributeRepository.deleteAll();
         productRepository.deleteAll();
 
-        MultivaluedAttribute notLocalizedAttribute = new MultivaluedAttribute(
+        Attribute notLocalizedAttribute = new Attribute(
                 "ololo",
                 ImmutableSet.of(
                         "tototo",
@@ -49,7 +46,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 ), true
         );
 
-        MultivaluedAttribute localizedNamesAttribute = new MultivaluedAttribute(
+        Attribute localizedNamesAttribute = new Attribute(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "hahaha",
                         LangCodes.URK.getCode(), "hohoho",
@@ -62,7 +59,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 ), true
         );
 
-        MultivaluedAttribute localizedNamesAndValuesAtrribute = new MultivaluedAttribute(
+        Attribute localizedNamesAndValuesAtrribute = new Attribute(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "dedede",
                         LangCodes.URK.getCode(), "dadada",
@@ -87,33 +84,6 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 ), true
         );
 
-        Attribute attribute1 = new Attribute(notLocalizedAttribute, "tototo");
-        Attribute attribute2 = new Attribute(localizedNamesAttribute, "bababa");
-        Attribute attribute3 = new Attribute(localizedNamesAndValuesAtrribute, "xixixi");
-
-
-        Category category = new Category(
-                ImmutableMap.of(
-                        LangCodes.EN.getCode(), "Category One",
-                        LangCodes.URK.getCode(), "Категорія Один",
-                        LangCodes.RUS.getCode(), "Категория Один"
-                )
-        );
-
-        Product product = new Product(100500d, 100499d, category,
-                ImmutableSet.of(
-                        attribute1,
-                        attribute2,
-                        attribute3
-                )
-        );
-
-        Product product1 = new Product(100501d, 100491d, category, ImmutableSet.of(
-                attribute1,
-                attribute2,
-                attribute3
-        ));
-
         attributeRepository.save(
                 ImmutableSet.of(
                         notLocalizedAttribute,
@@ -121,7 +91,75 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                         localizedNamesAndValuesAtrribute
                 )
         );
+
+        ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, "tototo");
+        ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, "bababa");
+        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, "xixixi");
+
+        Category categoryParent = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Category Zero",
+                        LangCodes.URK.getCode(), "Категорія Нуль",
+                        LangCodes.RUS.getCode(), "Категория Ноль"
+                )
+        );
+
+        categoryRepository.save(categoryParent);
+
+        Category category = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Category One",
+                        LangCodes.URK.getCode(), "Категорія Один",
+                        LangCodes.RUS.getCode(), "Категория Один"
+                ), categoryParent
+        );
+
         categoryRepository.save(category);
+
+        Category category1 = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Category Two",
+                        LangCodes.URK.getCode(), "Категорія Два",
+                        LangCodes.RUS.getCode(), "Категория Два"
+                ), category
+        );
+
+        categoryRepository.save(category1);
+
+        Category category2 = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Category Three",
+                        LangCodes.URK.getCode(), "Категорія Три",
+                        LangCodes.RUS.getCode(), "Категория Три"
+                ), category
+        );
+
+        categoryRepository.save(category2);
+
+        Category category3 = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Category Four",
+                        LangCodes.URK.getCode(), "Категорія Чотири",
+                        LangCodes.RUS.getCode(), "Категория Четыре"
+                ), category
+        );
+
+        categoryRepository.save(category3);
+
+        Product product = new Product(100500d, 100499d, new ProductCategory(category3),
+                ImmutableSet.of(
+                        attribute1,
+                        attribute2,
+                        attribute3
+                )
+        );
+
+        Product product1 = new Product(100501d, 100491d, new ProductCategory(category), ImmutableSet.of(
+                attribute1,
+                attribute2,
+                attribute3
+        ));
+
         productRepository.save(product);
         productRepository.save(product1);
     }

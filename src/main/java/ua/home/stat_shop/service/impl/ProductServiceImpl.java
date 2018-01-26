@@ -4,15 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.home.stat_shop.persistence.domain.Attribute;
 import ua.home.stat_shop.persistence.domain.Category;
 import ua.home.stat_shop.persistence.domain.Product;
+import ua.home.stat_shop.persistence.domain.ProductAttribute;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
 import ua.home.stat_shop.service.ProductService;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -34,17 +35,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findProductByAttributes(List<Attribute> attributes, Pageable pageable) {
+    public Page<Product> findProductByAttributes(List<ProductAttribute> attributes, Pageable pageable) {
         return productRepository.findProductByAttributes(attributes, pageable);
     }
 
     @Override
-    public Page<Product> findProductByCategory(Category category, Pageable pageable) {
-        return productRepository.findProductByCategory(category, pageable);
+    public Page<Product> findProductByCategory(String id, Pageable pageable) {
+        return productRepository.findProductByCategory(id, pageable);
     }
 
     @Override
-    public Page<Product> findProductByAttributesAndCategory(List<Attribute> attributes, Category category, Pageable pageable) {
+    public Page<Product> findProductByAttributesAndCategory(List<ProductAttribute> attributes, Category category, Pageable pageable) {
         return productRepository.findProductByAttributesAndCategory(attributes, category, pageable);
     }
 

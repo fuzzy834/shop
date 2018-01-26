@@ -1,12 +1,12 @@
 package ua.home.stat_shop.service;
 
-import ua.home.stat_shop.persistence.domain.MultivaluedAttribute;
+import ua.home.stat_shop.persistence.domain.Attribute;
 
 import java.util.List;
 
 public interface AttributeService {
 
-    MultivaluedAttribute findAttributeById(String id);
+    Attribute findAttributeById(String id);
 
-    List<MultivaluedAttribute> findAttributesByIds(List<String> ids);
+    List<Attribute> findAttributesByIds(List<String> ids);
 }

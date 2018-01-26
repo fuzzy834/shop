@@ -8,4 +8,6 @@ public interface CategoryRepository extends MongoRepository<Category, String> {
 
     @Query("{$where: 'function() {for(var lang in this.localizedNames) if(this.localizedNames[lang] == ?0){return this;}}'}")
     Category findCategoryByName(String name);
+
+
 }

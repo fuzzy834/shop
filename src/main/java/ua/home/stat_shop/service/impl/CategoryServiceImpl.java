@@ -6,6 +6,8 @@ import ua.home.stat_shop.persistence.domain.Category;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.service.CategoryService;
 
+import java.util.List;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -25,4 +27,5 @@ public class CategoryServiceImpl implements CategoryService {
     public Category findCategoryById(String id) {
         return categoryRepository.findOne(id);
     }
+
 }
