@@ -1,10 +1,12 @@
 package ua.home.stat_shop.persistence.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import ua.home.stat_shop.persistence.constants.AttributeType;
 
 import java.util.List;
@@ -19,36 +21,12 @@ import java.util.Set;
 public class ProductAttribute {
 
     private String attributeId;
-    private String name;
-    private String value;
-    private String type;
-    private Map<String, String> localizedNames;
-    private Map<String, String> localizedValues;
+    private AttributeName name;
+    private AttributeValue value;
 
-    public ProductAttribute(Attribute attribute, String value) {
+    public ProductAttribute(Attribute attribute, AttributeValue value) {
         this.attributeId = attribute.getId();
-        this.name = attribute.getName();
-        this.type = attribute.getType();
-        if (this.type.equals(AttributeType.NOT_LOCALIZED.getType())) {
-            this.value = getNonLocalizedValue(value, attribute.getValues());
-        } else if (this.type.equals(AttributeType.LOCALIZED_NAMES.getType())) {
-            this.localizedNames = attribute.getLocalizedNames();
-            this.value = getNonLocalizedValue(value, attribute.getValues());
-        } else {
-            this.localizedNames = attribute.getLocalizedNames();
-            this.localizedValues = getLocalizedValue(value, attribute.getLocalizedValues());
-        }
-    }
-
-    private String getNonLocalizedValue(String value, Set<String> values) {
-        return values.stream().filter(v -> v.equals(value))
-                .findFirst().orElse(null);
-    }
-
-    private Map<String, String> getLocalizedValue(String value, List<Map<String, String>> values) {
-        return values.stream()
-                .filter(valMap -> valMap.entrySet().stream()
-                        .anyMatch(entry -> entry.getValue().equals(value)))
-                .findFirst().orElse(null);
+        this.name = attribute.getAttributeName();
+        this.value = value;
     }
 }

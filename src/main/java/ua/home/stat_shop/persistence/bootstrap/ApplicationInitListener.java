@@ -38,49 +38,49 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         productRepository.deleteAll();
 
         Attribute notLocalizedAttribute = new Attribute(
-                "ololo",
+                new NotLocalizedAttributeName("ololo"),
                 ImmutableSet.of(
-                        "tototo",
-                        "tatata",
-                        "tititi"
+                        new NotLocalizedAttributeValue("tototo"),
+                        new NotLocalizedAttributeValue("tatata"),
+                        new NotLocalizedAttributeValue("tititi")
                 ), true
         );
 
         Attribute localizedNamesAttribute = new Attribute(
-                ImmutableMap.of(
+                new LocalizedAttributeName(ImmutableMap.of(
                         LangCodes.EN.getCode(), "hahaha",
                         LangCodes.URK.getCode(), "hohoho",
                         LangCodes.RUS.getCode(), "hihihi"
-                ),
+                )),
                 ImmutableSet.of(
-                        "bububu",
-                        "bababa",
-                        "bibibi"
+                        new NotLocalizedAttributeValue("bububu"),
+                        new NotLocalizedAttributeValue("bababa"),
+                        new NotLocalizedAttributeValue("bibibi")
                 ), true
         );
 
         Attribute localizedNamesAndValuesAtrribute = new Attribute(
-                ImmutableMap.of(
+                new LocalizedAttributeName(ImmutableMap.of(
                         LangCodes.EN.getCode(), "dedede",
                         LangCodes.URK.getCode(), "dadada",
                         LangCodes.RUS.getCode(), "dododo"
-                ),
-                ImmutableList.of(
-                        ImmutableMap.of(
+                )),
+                ImmutableSet.of(
+                        new LocalizedAttributeValue(ImmutableMap.of(
                                 LangCodes.EN.getCode(), "rororo",
                                 LangCodes.URK.getCode(), "rarara",
                                 LangCodes.RUS.getCode(), "rerere"
-                        ),
-                        ImmutableMap.of(
+                        )),
+                        new LocalizedAttributeValue(ImmutableMap.of(
                                 LangCodes.EN.getCode(), "sesese",
                                 LangCodes.URK.getCode(), "sasasa",
                                 LangCodes.RUS.getCode(), "sososo"
-                        ),
-                        ImmutableMap.of(
+                        )),
+                        new LocalizedAttributeValue(ImmutableMap.of(
                                 LangCodes.EN.getCode(), "xexexe",
                                 LangCodes.URK.getCode(), "xaxaxa",
                                 LangCodes.RUS.getCode(), "xixixi"
-                        )
+                        ))
                 ), true
         );
 
@@ -92,9 +92,9 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 )
         );
 
-        ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, "tototo");
-        ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, "bababa");
-        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, "xixixi");
+        ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, notLocalizedAttribute.getAttributeValues().iterator().next());
+        ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, localizedNamesAttribute.getAttributeValues().iterator().next());
+        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues().iterator().next());
 
         Category categoryParent = new Category(
                 ImmutableMap.of(

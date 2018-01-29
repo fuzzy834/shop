@@ -21,33 +21,13 @@ public class Attribute {
 
     @Id
     private String id;
-    private String name;
-    private String type;
     private Boolean filterOn;
-    private Set<String> values;
-    private Map<String, String> localizedNames;
-    private List<Map<String, String>> localizedValues;
+    private AttributeName attributeName;
+    private Set<AttributeValue> attributeValues;
 
-    public Attribute(String name, Set<String> values, Boolean filterOn) {
-        this.name = name;
-        this.values = values;
-        this.type = AttributeType.NOT_LOCALIZED.getType();
-        this.filterOn = filterOn;
-    }
-
-    public Attribute(Map<String, String> localizedNames, Set<String> values, Boolean filterOn) {
-        this.name = localizedNames.entrySet().iterator().next().getValue();
-        this.values = values;
-        this.type = AttributeType.LOCALIZED_NAMES.getType();
-        this.localizedNames = localizedNames;
-        this.filterOn = filterOn;
-    }
-
-    public Attribute(Map<String, String> localizedNames, List<Map<String, String>> localizedValues, Boolean filterOn) {
-        this.name = localizedNames.entrySet().iterator().next().getValue();
-        this.type = AttributeType.LOCALIZED_NAMES_AND_VALUES.getType();
-        this.localizedNames = localizedNames;
-        this.localizedValues = localizedValues;
+    public Attribute(AttributeName attributeName, Set<AttributeValue> attributeValues, Boolean filterOn) {
+        this.attributeName = attributeName;
+        this.attributeValues = attributeValues;
         this.filterOn = filterOn;
     }
 }

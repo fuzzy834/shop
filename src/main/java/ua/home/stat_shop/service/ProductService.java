@@ -13,9 +13,9 @@ public interface ProductService {
 
     Page<Product> findAll(Pageable pageable);
 
-    Page<Product> findProductByAttributes(List<ProductAttribute> attributes, Pageable pageable);
+    Page<Product> findProductByAttributes(List<String> attributes, List<String> values, Pageable pageable);
 
     Page<Product> findProductByCategory(String id, Pageable pageable);
 
-    Page<Product> findProductByAttributesAndCategory(List<ProductAttribute> attributes, Category category, Pageable pageable);
+    Page<Product> findProductByAttributesAndCategory(List<String> attributes, List<String> values, String categoryId, Pageable pageable);
 }

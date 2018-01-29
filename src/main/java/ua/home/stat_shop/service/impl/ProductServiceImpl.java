@@ -1,5 +1,6 @@
 package ua.home.stat_shop.service.impl;
 
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,8 @@ import ua.home.stat_shop.service.ProductService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -35,8 +38,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findProductByAttributes(List<ProductAttribute> attributes, Pageable pageable) {
-        return productRepository.findProductByAttributes(attributes, pageable);
+    public Page<Product> findProductByAttributes(List<String> attributes, List<String> values, Pageable pageable) {
+        Map<String, String> ids = IntStream.range(0, attributes.size())
+                .mapToObj(i -> Maps.immutableEntry(attributes.get(i), values.get(i)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return productRepository.findProductByAttributes(ids, pageable);
     }
 
     @Override
@@ -45,8 +51,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> findProductByAttributesAndCategory(List<ProductAttribute> attributes, Category category, Pageable pageable) {
-        return productRepository.findProductByAttributesAndCategory(attributes, category, pageable);
+    public Page<Product> findProductByAttributesAndCategory(List<String> attributes, List<String> values, String categoryId, Pageable pageable) {
+        Map<String, String> ids = IntStream.range(0, attributes.size())
+                .mapToObj(i -> Maps.immutableEntry(attributes.get(i), values.get(i)))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return productRepository.findProductByCategoryAndAttributes(ids, categoryId, pageable);
     }
 
 }

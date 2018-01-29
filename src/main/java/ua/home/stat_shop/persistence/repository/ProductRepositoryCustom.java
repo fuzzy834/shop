@@ -14,5 +14,7 @@ public interface ProductRepositoryCustom {
 
     Page<Product> findProductByCategory(String categoryId, Pageable pageable);
 
-    Page<Product> findProductByAttributes(List<ProductAttribute> attributes, Pageable pageable);
+    Page<Product> findProductByAttributes(Map<String, String> ids, Pageable pageable);
+
+    Page<Product> findProductByCategoryAndAttributes(Map<String, String> attributeIds, String categoryId, Pageable pageable);
 }

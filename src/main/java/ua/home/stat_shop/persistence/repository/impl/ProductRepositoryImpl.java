@@ -13,6 +13,7 @@ import ua.home.stat_shop.persistence.domain.ProductAttribute;
 import ua.home.stat_shop.persistence.repository.ProductRepositoryCustom;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,15 +38,31 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return PageableExecutionUtils.getPage(products, pageable, () -> mongoTemplate.count(query, Product.class));
     }
 
-    //TODO: Fix it
     @Override
-    public Page<Product> findProductByAttributes(List<ProductAttribute> attributes, Pageable pageable) {
+    public Page<Product> findProductByAttributes(Map<String, String> ids, Pageable pageable) {
         Query query = new Query();
         Criteria criteria = new Criteria();
-        query.addCriteria(criteria.andOperator(IntStream.range(0, attributes.size())
-                .mapToObj(i -> Criteria.where("attributes")
-                        .elemMatch(Criteria.where(String.valueOf(i))
-                                .is(attributes.get(i)))).distinct().toArray(Criteria[]::new)));
+        query.addCriteria(criteria.andOperator(ids.entrySet().stream().map(attr -> Criteria.where("attributes")
+                        .elemMatch(
+                                Criteria.where("attributeId").is(attr.getKey())
+                                        .and("value.id").is(attr.getValue())))
+                        .distinct().toArray(Criteria[]::new)));
+        List<Product> products = mongoTemplate.find(query, Product.class);
+        return PageableExecutionUtils.getPage(products, pageable, () -> mongoTemplate.count(query, Product.class));
+    }
+
+    //TODO: test and refactor
+    @Override
+    public Page<Product> findProductByCategoryAndAttributes(Map<String, String> attributeIds, String categoryId, Pageable pageable) {
+        Criteria criteria = new Criteria();
+        Criteria firstOption = Criteria.where("category.categoryId").is(categoryId);
+        Criteria secondOption = Criteria.where("category.ancestors").all(categoryId);
+        Query query = Query.query(criteria.orOperator(firstOption, secondOption));
+        query.addCriteria(criteria.andOperator(attributeIds.entrySet().stream().map(attr -> Criteria.where("attributes")
+                .elemMatch(
+                        Criteria.where("attributeId").is(attr.getKey())
+                                .and("value.id").is(attr.getValue())))
+                .distinct().toArray(Criteria[]::new)));
         List<Product> products = mongoTemplate.find(query, Product.class);
         return PageableExecutionUtils.getPage(products, pageable, () -> mongoTemplate.count(query, Product.class));
     }
