@@ -20,12 +20,12 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public Attribute findAttributeById(String id) {
+    public Attribute findAttributeById(String lang, String id) {
         return attributeRepository.findOne(id);
     }
 
     @Override
-    public List<Attribute> findAttributesByIds(List<String> ids) {
+    public List<Attribute> findAttributesByIds(String lang, List<String> ids) {
         return Lists.newArrayList(attributeRepository.findAll(ids));
     }
 }

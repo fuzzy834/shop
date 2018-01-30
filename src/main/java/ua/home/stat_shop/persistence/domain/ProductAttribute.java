@@ -1,17 +1,10 @@
 package ua.home.stat_shop.persistence.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import ua.home.stat_shop.persistence.constants.AttributeType;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter

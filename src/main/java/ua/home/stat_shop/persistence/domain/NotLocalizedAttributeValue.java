@@ -11,5 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class NotLocalizedAttributeValue extends AttributeValue {
 
-    private String value;
+    private String nonLocalizedValue;
 }

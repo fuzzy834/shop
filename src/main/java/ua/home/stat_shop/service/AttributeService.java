@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface AttributeService {
 
-    Attribute findAttributeById(String id);
+    Attribute findAttributeById(String lang,  String id);
 
-    List<Attribute> findAttributesByIds(List<String> ids);
+    List<Attribute> findAttributesByIds(String lang, List<String> ids);
 }

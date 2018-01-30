@@ -2,12 +2,10 @@ package ua.home.stat_shop.service;
 
 import ua.home.stat_shop.persistence.domain.Category;
 
-import java.util.List;
-
 public interface CategoryService {
 
-    Category findCategoryByName(String name);
+    Category findCategoryByName(String lang, String name);
 
-    Category findCategoryById(String id);
+    Category findCategoryById(String lang, String id);
 
 }
