@@ -1,6 +1,5 @@
 package ua.home.stat_shop.persistence.bootstrap;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +103,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 )
         );
 
-        categoryRepository.save(categoryParent);
+        categoryParent = categoryRepository.save(categoryParent);
 
         Category category = new Category(
                 ImmutableMap.of(
@@ -145,6 +144,26 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         );
 
         categoryRepository.save(category3);
+
+        Category separateCategory = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Separate Category",
+                        LangCodes.URK.getCode(), "Окрема Категорія",
+                        LangCodes.RUS.getCode(), "Отдельная Категория"
+                )
+        );
+
+        categoryRepository.save(separateCategory);
+
+        Category separateCategory1 = new Category(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "Separate Category 1",
+                        LangCodes.URK.getCode(), "Окрема Категорія 1",
+                        LangCodes.RUS.getCode(), "Отдельная Категория 1"
+                ), separateCategory
+        );
+
+        categoryRepository.save(separateCategory1);
 
         Product product = new Product(100500d, 100499d, new ProductCategory(category3),
                 ImmutableSet.of(

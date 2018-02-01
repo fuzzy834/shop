@@ -1,6 +1,5 @@
 package ua.home.stat_shop.persistence.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @Document
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Attribute {
 
     @Id

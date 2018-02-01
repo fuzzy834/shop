@@ -1,9 +1,11 @@
 package ua.home.stat_shop.persistence.converters;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
 import java.util.Map;
@@ -52,5 +54,17 @@ public class DbObjectToDto {
 
             return Maps.immutableEntry(name, value);
         }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    public static CategoryDto getCategoryDto(DBObject dbObject, String lang) {
+        String subCategory = dbObject.get("subCategory").toString();
+        CategoryDto category = new CategoryDto();
+        category.setId(dbObject.get("_id").toString());
+        category.setName(((BasicDBObject) dbObject.get("localizedNames")).getString(lang));
+        category.setChildren(Sets.newHashSet());
+        if (Boolean.valueOf(subCategory)) {
+            category.setParent(((BasicDBObject) dbObject.get("parent")).getString("$id"));
+        }
+        return category;
     }
 }

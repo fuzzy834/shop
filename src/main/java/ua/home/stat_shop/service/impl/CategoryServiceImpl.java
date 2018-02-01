@@ -2,9 +2,11 @@ package ua.home.stat_shop.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ua.home.stat_shop.persistence.domain.Category;
+import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.service.CategoryService;
+
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -17,13 +19,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category findCategoryByName(String lang, String name) {
-        return categoryRepository.findCategoryByName(lang, name);
+    public CategoryDto findCategoryById(String lang, String id) {
+        return categoryRepository.findCategoryById(lang, id);
     }
 
     @Override
-    public Category findCategoryById(String lang, String id) {
-        return categoryRepository.findOne(id);
+    public List<CategoryDto> findAllCategories(String lang) {
+        return categoryRepository.findAllCategories(lang);
     }
-
 }

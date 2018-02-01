@@ -20,7 +20,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Category {
 
     @Id

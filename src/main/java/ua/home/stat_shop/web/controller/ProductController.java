@@ -24,7 +24,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductDto>> getAllProducts(@PathVariable String lang, @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ProductDto>> getAllProducts(@PathVariable String lang,
+                                                           @PageableDefault Pageable pageable) {
 
         return ResponseEntity.ok(productService.findAll(lang, pageable));
     }

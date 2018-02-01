@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductAttribute {
 
     private String attributeId;

@@ -1,5 +1,6 @@
 package ua.home.stat_shop.persistence.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProductDto implements Serializable {
 
     private String id;
