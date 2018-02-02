@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import ua.home.stat_shop.persistence.dto.AttributeDto;
 import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
@@ -66,5 +67,38 @@ public class DbObjectToDto {
             category.setParent(((BasicDBObject) dbObject.get("parent")).getString("$id"));
         }
         return category;
+    }
+
+    public static AttributeDto getAttributeDto(DBObject dbObject, String lang) {
+        AttributeDto attribute = new AttributeDto();
+        attribute.setAttributeId(dbObject.get("_id").toString());
+
+        BasicDBObject attributeName = (BasicDBObject) dbObject.get("attributeName");
+
+        if (attributeName.containsField("nonLocalizedName")) {
+            attribute.setName(attributeName.getString("nonLocalizedName"));
+        } else {
+            BasicDBObject localizedNames = (BasicDBObject) attributeName.get("localizedName");
+            attribute.setName(localizedNames.getString(lang));
+        }
+
+        BasicDBList attributeValues = (BasicDBList) dbObject.get("attributeValues");
+
+        Map<String, String> values = attributeValues.stream().map(value ->
+                {
+                        BasicDBObject valueObj = (BasicDBObject) value;
+                        String id = valueObj.getString("_id");
+                        if (valueObj.containsField("nonLocalizedValue")) {
+                            return Maps.immutableEntry(id, valueObj.getString("nonLocalizedValue"));
+                        } else {
+                            BasicDBObject localizedValues = (BasicDBObject) valueObj.get("localizedValue");
+                            return Maps.immutableEntry(id, localizedValues.getString(lang));
+                        }
+                }
+        ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        attribute.setValues(values);
+
+        return attribute;
     }
 }

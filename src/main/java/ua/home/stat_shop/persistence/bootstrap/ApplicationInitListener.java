@@ -12,6 +12,8 @@ import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
 
+import java.util.List;
+
 @Component
 public class ApplicationInitListener implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -83,7 +85,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 ), true
         );
 
-        attributeRepository.save(
+        List<Attribute> attributes = attributeRepository.save(
                 ImmutableSet.of(
                         notLocalizedAttribute,
                         localizedNamesAttribute,

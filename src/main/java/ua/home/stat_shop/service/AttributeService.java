@@ -1,12 +1,15 @@
 package ua.home.stat_shop.service;
 
-import ua.home.stat_shop.persistence.domain.Attribute;
+import ua.home.stat_shop.persistence.dto.AttributeDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AttributeService {
 
-    Attribute findAttributeById(String lang, String id);
+    AttributeDto findAttributeById(String lang, String id);
 
-    List<Attribute> findAttributesByIds(String lang, List<String> ids);
+    List<AttributeDto> findAttributesByIds(String lang, Set<String> ids);
+
+    List<AttributeDto> findAllAttributes(String lang);
 }

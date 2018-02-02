@@ -1,13 +1,13 @@
 package ua.home.stat_shop.service.impl;
 
-import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ua.home.stat_shop.persistence.domain.Attribute;
+import ua.home.stat_shop.persistence.dto.AttributeDto;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.service.AttributeService;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class AttributeServiceImpl implements AttributeService {
@@ -20,12 +20,17 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public Attribute findAttributeById(String lang, String id) {
-        return attributeRepository.findOne(id);
+    public AttributeDto findAttributeById(String lang, String id) {
+        return attributeRepository.findAttributeById(lang, id);
     }
 
     @Override
-    public List<Attribute> findAttributesByIds(String lang, List<String> ids) {
-        return Lists.newArrayList(attributeRepository.findAll(ids));
+    public List<AttributeDto> findAttributesByIds(String lang, Set<String> ids) {
+        return attributeRepository.findAttributeByIds(lang, ids);
+    }
+
+    @Override
+    public List<AttributeDto> findAllAttributes(String lang) {
+        return attributeRepository.findAllAttributes(lang);
     }
 }

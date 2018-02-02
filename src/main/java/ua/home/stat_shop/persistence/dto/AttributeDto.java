@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -17,7 +18,5 @@ public class AttributeDto implements Serializable {
 
     String name;
 
-    String valueId;
-
-    String value;
+    Map<String, String> values;
 }
