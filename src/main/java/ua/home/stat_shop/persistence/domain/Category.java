@@ -1,7 +1,6 @@
 package ua.home.stat_shop.persistence.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,10 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -34,6 +30,8 @@ public class Category {
     private Set<String> ancestors;
 
     private Map<String, String> localizedNames;
+
+    private Map<String, Integer> attributes = new HashMap<>();
 
     public Category(Map<String, String> localizedNames) {
         this.subCategory = false;

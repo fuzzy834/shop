@@ -33,5 +33,4 @@ public class CategoryController {
 
         return ResponseEntity.ok(categoryService.findCategoryById(lang, id));
     }
-
 }

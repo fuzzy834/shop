@@ -30,6 +30,13 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAll(lang, pageable));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDto> findProduct(@PathVariable String lang,
+                                                  @PathVariable String id) {
+
+        return ResponseEntity.ok(productService.findAttributeById(lang, id));
+    }
+
     @GetMapping("/category/{id}")
     public ResponseEntity<Page<ProductDto>> getProductsByCategory(@PathVariable String lang,
                                                                   @PathVariable String id,

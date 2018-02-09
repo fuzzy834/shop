@@ -11,7 +11,11 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocalizedAttributeValue extends AttributeValue {
+public class ProductBase {
 
-    private Map<String, String> localizedValue;
+    private Map<String, String> localizedProductName;
+    private Map<String, String> localizedProductDescription;
+    private Double retailPrice;
+    private Double bulkPrice;
+    private String currency;
 }

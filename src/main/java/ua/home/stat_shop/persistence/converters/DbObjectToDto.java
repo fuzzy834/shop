@@ -7,21 +7,31 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import ua.home.stat_shop.persistence.dto.AttributeDto;
 import ua.home.stat_shop.persistence.dto.CategoryDto;
+import ua.home.stat_shop.persistence.dto.ProductAttributeDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DbObjectToDto {
 
     public static ProductDto getProductDto(DBObject dbObject, String lang) {
+        BasicDBObject productBase = (BasicDBObject) dbObject.get("productBase");
+        BasicDBObject localizedName = (BasicDBObject) productBase.get("localizedProductName");
+        BasicDBObject localizedDescription = (BasicDBObject) productBase.get("localizedProductDescription");
+        BasicDBObject category = (BasicDBObject) dbObject.get("category");
+        BasicDBList attributes = (BasicDBList) dbObject.get("attributes");
+
         return new ProductDto(
                 dbObject.get("_id").toString(),
-                Double.parseDouble(dbObject.get("retailPrice").toString()),
-                Double.parseDouble(dbObject.get("bulkPrice").toString()),
-                Integer.parseInt(dbObject.containsField("discount") ? dbObject.get("discount").toString() : "0"),
-                getCategoryNameFromProduct((BasicDBObject) dbObject.get("category"), lang),
-                getAttributesFromProduct((BasicDBList) dbObject.get("attributes"), lang)
+                localizedName.getString(lang),
+                localizedDescription.getString(lang),
+                productBase.getDouble("retailPrice"),
+                productBase.getDouble("bulkPrice"),
+                productBase.getString("currency"),
+                getCategoryNameFromProduct(category, lang),
+                getAttributesFromProduct(attributes, lang)
         );
     }
 
@@ -30,9 +40,9 @@ public class DbObjectToDto {
         return nameObj.getString(lang);
     }
 
-    private static Map<String, String> getAttributesFromProduct(BasicDBList attributes, String lang) {
+    private static List<ProductAttributeDto> getAttributesFromProduct(BasicDBList attributes, String lang) {
         return attributes.stream().map(attribute -> {
-
+            String id = ((BasicDBObject) attribute).getString("attributeId");
             Object nameObj = ((BasicDBObject) attribute).get("name");
             BasicDBObject nameDbObj = (BasicDBObject) nameObj;
             String name;
@@ -42,19 +52,19 @@ public class DbObjectToDto {
                 BasicDBObject localizedName = (BasicDBObject) nameDbObj.get("localizedName");
                 name = localizedName.getString(lang);
             }
-
+            Integer priority = ((BasicDBObject) attribute).getInt("priority", 0);
             Object valueObj = ((BasicDBObject) attribute).get("value");
             BasicDBObject valueDbObj = (BasicDBObject) valueObj;
+            String quantity = valueDbObj.containsField("quantity") ? valueDbObj.getString("quantity") + " " : "";
             String value;
             if (valueDbObj.containsField("nonLocalizedValue")) {
-                value = valueDbObj.getString("nonLocalizedValue");
+                value = quantity + valueDbObj.getString("nonLocalizedValue");
             } else {
                 BasicDBObject localizedValue = (BasicDBObject) valueDbObj.get("localizedValue");
-                value = localizedValue.getString(lang);
+                value = quantity + localizedValue.getString(lang);
             }
-
-            return Maps.immutableEntry(name, value);
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            return new ProductAttributeDto(id, priority, name, value);
+        }).sorted((p1, p2) -> p2.getPriority().compareTo(p1.getPriority())).collect(Collectors.toList());
     }
 
     public static CategoryDto getCategoryDto(DBObject dbObject, String lang) {
@@ -82,18 +92,21 @@ public class DbObjectToDto {
             attribute.setName(localizedNames.getString(lang));
         }
 
+        attribute.setPriority(attributeName.getInt("priority", 0));
+
         BasicDBList attributeValues = (BasicDBList) dbObject.get("attributeValues");
 
         Map<String, String> values = attributeValues.stream().map(value ->
                 {
-                        BasicDBObject valueObj = (BasicDBObject) value;
-                        String id = valueObj.getString("_id");
-                        if (valueObj.containsField("nonLocalizedValue")) {
-                            return Maps.immutableEntry(id, valueObj.getString("nonLocalizedValue"));
-                        } else {
-                            BasicDBObject localizedValues = (BasicDBObject) valueObj.get("localizedValue");
-                            return Maps.immutableEntry(id, localizedValues.getString(lang));
-                        }
+                    BasicDBObject valueObj = (BasicDBObject) value;
+                    String quantity = valueObj.containsField("quantity") ? valueObj.getString("quantity") + " " : "";
+                    String id = valueObj.getString("_id");
+                    if (valueObj.containsField("nonLocalizedValue")) {
+                        return Maps.immutableEntry(id, quantity + valueObj.getString("nonLocalizedValue"));
+                    } else {
+                        BasicDBObject localizedValues = (BasicDBObject) valueObj.get("localizedValue");
+                        return Maps.immutableEntry(id, quantity + localizedValues.getString(lang));
+                    }
                 }
         ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

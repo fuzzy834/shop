@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -21,5 +20,8 @@ public class CategoryDto implements Serializable {
 
     String parent;
 
+    Set<AttributeDto> attributes;
+
     Set<CategoryDto> children;
+
 }

@@ -12,6 +12,8 @@ import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
 
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 
 @Component
@@ -38,51 +40,57 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         attributeRepository.deleteAll();
         productRepository.deleteAll();
 
+        AttributeName attributeName1 = new NotLocalizedAttributeName("ololo");
+        attributeName1.setPriority(3);
         Attribute notLocalizedAttribute = new Attribute(
-                new NotLocalizedAttributeName("ololo"),
-                ImmutableSet.of(
-                        new NotLocalizedAttributeValue("tototo"),
-                        new NotLocalizedAttributeValue("tatata"),
-                        new NotLocalizedAttributeValue("tititi")
-                ), true
+                attributeName1, ImmutableSet.of(
+                new NotLocalizedAttributeValue("tototo"),
+                new NotLocalizedAttributeValue("tatata"),
+                new NotLocalizedAttributeValue("tititi")
+        )
         );
 
+        AttributeName attributeName2 = new LocalizedAttributeName(ImmutableMap.of(
+                LangCodes.EN.getCode(), "hahaha",
+                LangCodes.UKR.getCode(), "hohoho",
+                LangCodes.RUS.getCode(), "hihihi"
+        ));
+        attributeName2.setPriority(2);
         Attribute localizedNamesAttribute = new Attribute(
-                new LocalizedAttributeName(ImmutableMap.of(
-                        LangCodes.EN.getCode(), "hahaha",
-                        LangCodes.URK.getCode(), "hohoho",
-                        LangCodes.RUS.getCode(), "hihihi"
-                )),
-                ImmutableSet.of(
-                        new NotLocalizedAttributeValue("bububu"),
-                        new NotLocalizedAttributeValue("bababa"),
-                        new NotLocalizedAttributeValue("bibibi")
-                ), true
+                attributeName2, ImmutableSet.of(
+                new NotLocalizedAttributeValue("bububu"),
+                new NotLocalizedAttributeValue("bababa"),
+                new NotLocalizedAttributeValue("bibibi")
+        )
         );
 
+        AttributeValue attributeValueWithQuantity = new LocalizedAttributeValue(ImmutableMap.of(
+                LangCodes.EN.getCode(), "rororo",
+                LangCodes.UKR.getCode(), "rarara",
+                LangCodes.RUS.getCode(), "rerere"
+        ));
+        attributeValueWithQuantity.setQuantity(20);
+
+        AttributeName attributeName3 = new LocalizedAttributeName(ImmutableMap.of(
+                LangCodes.EN.getCode(), "dedede",
+                LangCodes.UKR.getCode(), "dadada",
+                LangCodes.RUS.getCode(), "dododo"
+        ));
+        attributeName3.setPriority(1);
         Attribute localizedNamesAndValuesAtrribute = new Attribute(
-                new LocalizedAttributeName(ImmutableMap.of(
-                        LangCodes.EN.getCode(), "dedede",
-                        LangCodes.URK.getCode(), "dadada",
-                        LangCodes.RUS.getCode(), "dododo"
+                attributeName3, ImmutableSet.of(
+                attributeValueWithQuantity,
+                new LocalizedAttributeValue(ImmutableMap.of(
+                        LangCodes.EN.getCode(), "sesese",
+                        LangCodes.UKR.getCode(), "sasasa",
+                        LangCodes.RUS.getCode(), "sososo"
                 )),
-                ImmutableSet.of(
-                        new LocalizedAttributeValue(ImmutableMap.of(
-                                LangCodes.EN.getCode(), "rororo",
-                                LangCodes.URK.getCode(), "rarara",
-                                LangCodes.RUS.getCode(), "rerere"
-                        )),
-                        new LocalizedAttributeValue(ImmutableMap.of(
-                                LangCodes.EN.getCode(), "sesese",
-                                LangCodes.URK.getCode(), "sasasa",
-                                LangCodes.RUS.getCode(), "sososo"
-                        )),
-                        new LocalizedAttributeValue(ImmutableMap.of(
-                                LangCodes.EN.getCode(), "xexexe",
-                                LangCodes.URK.getCode(), "xaxaxa",
-                                LangCodes.RUS.getCode(), "xixixi"
-                        ))
-                ), true
+                new LocalizedAttributeValue(ImmutableMap.of(
+                        LangCodes.EN.getCode(), "xexexe",
+                        LangCodes.UKR.getCode(), "xaxaxa",
+                        LangCodes.RUS.getCode(), "xixixi"
+                ))
+        )
         );
 
         List<Attribute> attributes = attributeRepository.save(
@@ -95,12 +103,12 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, notLocalizedAttribute.getAttributeValues().iterator().next());
         ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, localizedNamesAttribute.getAttributeValues().iterator().next());
-        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues().iterator().next());
+        ProductAttribute attribute3 = new ProductAttribute(LocalDateTime.now(), LocalDateTime.now().plus(Period.ofDays(20)), localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues().iterator().next());
 
         Category categoryParent = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category Zero",
-                        LangCodes.URK.getCode(), "Категорія Нуль",
+                        LangCodes.UKR.getCode(), "Категорія Нуль",
                         LangCodes.RUS.getCode(), "Категория Ноль"
                 )
         );
@@ -110,7 +118,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         Category category = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category One",
-                        LangCodes.URK.getCode(), "Категорія Один",
+                        LangCodes.UKR.getCode(), "Категорія Один",
                         LangCodes.RUS.getCode(), "Категория Один"
                 ), categoryParent
         );
@@ -120,7 +128,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         Category category1 = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category Two",
-                        LangCodes.URK.getCode(), "Категорія Два",
+                        LangCodes.UKR.getCode(), "Категорія Два",
                         LangCodes.RUS.getCode(), "Категория Два"
                 ), category
         );
@@ -130,7 +138,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         Category category2 = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category Three",
-                        LangCodes.URK.getCode(), "Категорія Три",
+                        LangCodes.UKR.getCode(), "Категорія Три",
                         LangCodes.RUS.getCode(), "Категория Три"
                 ), category
         );
@@ -140,7 +148,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         Category category3 = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category Four",
-                        LangCodes.URK.getCode(), "Категорія Чотири",
+                        LangCodes.UKR.getCode(), "Категорія Чотири",
                         LangCodes.RUS.getCode(), "Категория Четыре"
                 ), category
         );
@@ -150,7 +158,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         Category separateCategory = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Separate Category",
-                        LangCodes.URK.getCode(), "Окрема Категорія",
+                        LangCodes.UKR.getCode(), "Окрема Категорія",
                         LangCodes.RUS.getCode(), "Отдельная Категория"
                 )
         );
@@ -160,28 +168,64 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
         Category separateCategory1 = new Category(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Separate Category 1",
-                        LangCodes.URK.getCode(), "Окрема Категорія 1",
+                        LangCodes.UKR.getCode(), "Окрема Категорія 1",
                         LangCodes.RUS.getCode(), "Отдельная Категория 1"
                 ), separateCategory
         );
 
         categoryRepository.save(separateCategory1);
 
-        Product product = new Product(100500d, 100499d, new ProductCategory(category3),
+        ProductBase productBase = new ProductBase(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "product1",
+                        LangCodes.UKR.getCode(), "продукт1",
+                        LangCodes.RUS.getCode(), "продукт1"
+                ),
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "product1",
+                        LangCodes.UKR.getCode(), "продукт1",
+                        LangCodes.RUS.getCode(), "продукт1"
+                ),
+                1000d,
+                9999d,
+                "UAH"
+        );
+
+        ProductBase productBase1 = new ProductBase(
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "product2",
+                        LangCodes.UKR.getCode(), "продукт2",
+                        LangCodes.RUS.getCode(), "продукт2"
+                ),
+                ImmutableMap.of(
+                        LangCodes.EN.getCode(), "product2",
+                        LangCodes.UKR.getCode(), "продукт2",
+                        LangCodes.RUS.getCode(), "продукт2"
+                ),
+                1000d,
+                9999d,
+                "UAH"
+        );
+
+        Product product = new Product(productBase, new ProductCategory(category3),
                 ImmutableSet.of(
-                        attribute1,
-                        attribute2,
-                        attribute3
+                        attribute2
                 )
         );
 
-        Product product1 = new Product(100501d, 100491d, new ProductCategory(category), ImmutableSet.of(
+        Product product1 = new Product(productBase1, new ProductCategory(category), ImmutableSet.of(
                 attribute1,
                 attribute2,
                 attribute3
         ));
 
-        productRepository.save(product);
-        productRepository.save(product1);
+        product = productRepository.save(product);
+        product1 = productRepository.save(product1);
+
+        ProductAttribute attr = product.getAttributes().iterator().next();
+        ProductAttribute attr1 = product1.getAttributes().iterator().next();
+        productRepository.addProductAttribute(product.getId(), attr.getAttributeId(), attr.getValue().getId());
+        productRepository.addProductAttribute(product.getId(), attr1.getAttributeId(), attr1.getValue().getId());
+        productRepository.changeAttributePriority(product.getId(), attribute2.getAttributeId(), 25);
     }
 }

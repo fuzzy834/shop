@@ -11,6 +11,10 @@ public class AttributeValue {
 
     private String id;
 
+    private Integer quantity;
+
+    private String categoryId;
+
     public AttributeValue() {
         this.id = UUID.randomUUID().toString().replace("-", "");
     }

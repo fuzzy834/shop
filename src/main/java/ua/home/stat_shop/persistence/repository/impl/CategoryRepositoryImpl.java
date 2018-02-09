@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
     private static final List<String> categoryDtoNonI18nFields = ImmutableList.of(
-            "_id", "parent.$id", "subCategory"
+            "_id", "parent.$id", "subCategory", "attributes"
     );
 
     private static final List<String> categoryDtoI18nFields = ImmutableList.of(

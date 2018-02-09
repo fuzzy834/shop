@@ -3,22 +3,19 @@ package ua.home.stat_shop.persistence.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import java.io.Serializable;
-import java.util.Map;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class AttributeDto implements Serializable {
+public class ProductAttributeDto {
 
-    String attributeId;
+    private String attributeId;
 
-    String name;
+    private Integer priority;
 
-    Integer priority;
+    private String name;
 
-    Map<String, String> values;
+    private String value;
 }

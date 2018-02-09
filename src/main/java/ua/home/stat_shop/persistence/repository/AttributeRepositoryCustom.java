@@ -12,4 +12,6 @@ public interface AttributeRepositoryCustom {
     AttributeDto findAttributeById(String lang, String id);
 
     List<AttributeDto> findAttributeByIds(String lang, Set<String> ids);
+
+    List<AttributeDto> findAttributesByCategory(String lang, String categoryId);
 }

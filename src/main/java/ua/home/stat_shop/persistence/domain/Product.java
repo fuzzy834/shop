@@ -18,23 +18,12 @@ public class Product {
 
     @Id
     private String id;
-    private Double retailPrice;
-    private Double bulkPrice;
-    private Integer discount;
     private ProductCategory category;
     private Set<ProductAttribute> attributes;
+    private ProductBase productBase;
 
-    public Product(Double retailPrice, Double bulkPrice, ProductCategory category, Set<ProductAttribute> attributes) {
-        this.retailPrice = retailPrice;
-        this.bulkPrice = bulkPrice;
-        this.category = category;
-        this.attributes = attributes;
-    }
-
-    public Product(Double retailPrice, Double bulkPrice, Integer discount, ProductCategory category, Set<ProductAttribute> attributes) {
-        this.retailPrice = retailPrice;
-        this.bulkPrice = bulkPrice;
-        this.discount = discount;
+    public Product(ProductBase productBase, ProductCategory category, Set<ProductAttribute> attributes) {
+        this.productBase = productBase;
         this.category = category;
         this.attributes = attributes;
     }

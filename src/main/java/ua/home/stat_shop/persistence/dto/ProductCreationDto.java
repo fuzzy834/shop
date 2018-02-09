@@ -2,6 +2,7 @@ package ua.home.stat_shop.persistence.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import ua.home.stat_shop.persistence.domain.ProductBase;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -12,13 +13,13 @@ import java.util.Map;
 @AllArgsConstructor
 @ToString
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class AttributeDto implements Serializable {
+public class ProductCreationDto implements Serializable {
 
-    String attributeId;
+    private String productId;
 
-    String name;
+    private ProductBase productBase;
 
-    Integer priority;
+    private String category;
 
-    Map<String, String> values;
+    private Map<String, String> attributeValueMap;
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,13 +16,17 @@ public class ProductDto implements Serializable {
 
     private String id;
 
+    private String name;
+
+    private String description;
+
     private Double retailPrice;
 
     private Double bulkPrice;
 
-    private Integer discount;
+    private String currency;
 
     private String category;
 
-    private Map<String, String> attributes;
+    private List<ProductAttributeDto> attributes;
 }

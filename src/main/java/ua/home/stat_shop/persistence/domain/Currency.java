@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocalizedAttributeValue extends AttributeValue {
+@Document
+public class Currency {
 
-    private Map<String, String> localizedValue;
+    Set<String> currencies;
 }

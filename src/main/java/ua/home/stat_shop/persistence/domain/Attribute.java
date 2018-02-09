@@ -16,14 +16,12 @@ public class Attribute {
 
     @Id
     private String id;
-    private Boolean filterOn;
     private AttributeName attributeName;
     private Set<AttributeValue> attributeValues;
 
-    public Attribute(AttributeName attributeName, Set<AttributeValue> attributeValues, Boolean filterOn) {
+    public Attribute(AttributeName attributeName, Set<AttributeValue> attributeValues) {
         this.attributeName = attributeName;
         this.attributeValues = attributeValues;
-        this.filterOn = filterOn;
     }
 }
 
