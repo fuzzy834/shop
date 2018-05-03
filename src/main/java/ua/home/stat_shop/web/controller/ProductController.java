@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.home.stat_shop.persistence.domain.Product;
+import ua.home.stat_shop.persistence.dto.ProductCreationDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 import ua.home.stat_shop.service.ProductService;
 
@@ -65,5 +67,15 @@ public class ProductController {
 
         Page<ProductDto> products = productService.findProductByAttributesAndCategory(lang, attributes, values, id, pageable);
         return ResponseEntity.ok(products);
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Product> createProduct(@RequestBody ProductCreationDto productCreationDto) {
+        return ResponseEntity.ok(productService.createOrUpdateProduct(productCreationDto));
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<Product> editProduct(@RequestBody ProductCreationDto productCreationDto) {
+        return ResponseEntity.ok(productService.createOrUpdateProduct(productCreationDto));
     }
 }

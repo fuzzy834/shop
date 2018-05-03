@@ -55,6 +55,18 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
         return groupByParent(categoryDtoLists, roots);
     }
 
+    @Override
+    public List<Category> findChildren(String id) {
+        Query query = Query.query(Criteria.where("_class").is(Category.class.getName()).and("ancestors").is(id));
+        return mongoTemplate.find(query, Category.class);
+    }
+
+    @Override
+    public List<Category> findCategoriesByAttribute(String attributeId) {
+        Query query = Query.query(Criteria.where("attributes." + attributeId).exists(true));
+        return mongoTemplate.find(query, Category.class);
+    }
+
     private List<CategoryDto> getCategoryDtosFromQuery(Query query, String lang) {
         includeFields(query, lang);
         List<CategoryDto> categoryDtos = Lists.newArrayList();

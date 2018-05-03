@@ -28,7 +28,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             "_id", "attributes.priority", "attributes.name.nonLocalizedName", "attributes.attributeId",
             "attributes.value.nonLocalizedValue", "attributes.value.quantity",
             "attributes.temporal", "attributes.startDateTime", "endDateTime",
-            "productBase.retailPrice", "productBase.bulkPrice", "productBase.currency"
+            "productBase.retailPrice", "productBase.bulkPrice", "productBase.currency",
+            "discount.percentOff", "discount.start", "discount.end"
     );
 
     private static final List<String> productDtoI18nFields = ImmutableList.of(
@@ -62,6 +63,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         Criteria secondOption = Criteria.where("category.ancestors").is(categoryId);
         Query query = Query.query(criteria.orOperator(firstOption, secondOption));
         return PageableExecutionUtils.getPage(getProductDtosFromQuery(query, lang), pageable, () -> mongoTemplate.count(query, Product.class));
+    }
+
+    @Override
+    public List<Product> findProductByCategory(String categoryId) {
+        Query query = Query.query(Criteria.where("category.categoryId").is(categoryId));
+        return mongoTemplate.find(query, Product.class);
     }
 
     @Override
@@ -104,22 +111,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public void addTemporalProductAttribute(String productId, String attributeId, String valueId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        Attribute attribute = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(attributeId)), Attribute.class);
-        attribute.getAttributeValues().stream()
-                .filter(value -> value.getId().equals(valueId)).findFirst().ifPresent(attributeValue -> {
-            ProductAttribute productAttribute = new ProductAttribute(startDateTime, endDateTime, attribute, attributeValue);
-            Product product = mongoTemplate.findAndModify(
-                    Query.query(Criteria.where("_id").is(productId)),
-                    new Update().addToSet("attributes", productAttribute),
-                    Product.class
-            );
-            onProductAttributeListChanged(attributeId, product.getCategory(), 1);
-            Scheduler.scheduleTask(() -> deleteProductAttribute(productId, attributeId), endDateTime);
-        });
-    }
-
-    @Override
     public void deleteProductAttribute(String productId, String attributeId) {
         Update update = new Update();
         Product product = mongoTemplate.findOne(Query.query(Criteria.where("_id").is(productId)), Product.class);
@@ -138,6 +129,32 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public void changeAttributePriority(String productId, String attributeId, Integer priority) {
         Query query = Query.query(Criteria.where("_id").is(productId).and("attributes.attributeId").is(attributeId));
         mongoTemplate.upsert(query, new Update().set("attributes.$.priority", priority), Product.class);
+    }
+
+    @Override
+    public void setProductDiscount(String productId, Discount discount) {
+        if (Objects.nonNull(discount.getStart())) {
+            Scheduler.scheduleTask(() -> mongoTemplate.upsert(Query.query(Criteria.where("_id").is(productId)),
+                    new Update().set("discount", discount), Product.class), discount.getStart());
+        } else {
+            mongoTemplate.upsert(Query.query(Criteria.where("_id").is(productId)),
+                    new Update().set("discount", discount), Product.class);
+        }
+        if (Objects.nonNull(discount.getEnd())) {
+            Scheduler.scheduleTask(() -> deleteProductDiscount(productId), discount.getEnd());
+        }
+    }
+
+    @Override
+    public void deleteProductDiscount(String productId) {
+        mongoTemplate.upsert(Query.query(Criteria.where("_id").is(productId)),
+                new Update().unset("discount"), Product.class);
+    }
+
+    @Override
+    public List<Product> findProductByAttribute(String attributeId) {
+        Query query = Query.query(Criteria.where("attributes").elemMatch(Criteria.where("attributeId").is(attributeId)));
+        return mongoTemplate.find(query, Product.class);
     }
 
     private void onProductAttributeListChanged(String attributeId, ProductCategory productCategory, Integer inc) {

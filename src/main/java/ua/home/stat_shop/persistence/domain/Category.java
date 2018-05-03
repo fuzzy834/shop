@@ -42,7 +42,7 @@ public class Category {
         this.subCategory = true;
         this.parent = parent;
         this.localizedNames = localizedNames;
-        if (null == this.ancestors) {
+        if (Objects.isNull(this.ancestors)) {
             ancestors = new HashSet<>();
         }
         this.ancestors.add(parent.getId());

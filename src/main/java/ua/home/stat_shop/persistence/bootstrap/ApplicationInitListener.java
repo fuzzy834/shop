@@ -103,7 +103,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, notLocalizedAttribute.getAttributeValues().iterator().next());
         ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, localizedNamesAttribute.getAttributeValues().iterator().next());
-        ProductAttribute attribute3 = new ProductAttribute(LocalDateTime.now(), LocalDateTime.now().plus(Period.ofDays(20)), localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues().iterator().next());
+        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues().iterator().next());
 
         Category categoryParent = new Category(
                 ImmutableMap.of(
@@ -218,6 +218,16 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 attribute2,
                 attribute3
         ));
+
+        Discount discount1 = new Discount();
+        discount1.setPercentOff(5);
+        Discount discount2 = new Discount();
+        discount2.setPercentOff(10);
+        discount2.setStart(LocalDateTime.now());
+        discount2.setEnd(LocalDateTime.now().plus(Period.ofDays(10)));
+
+        product.setDiscount(discount1);
+        product1.setDiscount(discount2);
 
         product = productRepository.save(product);
         product1 = productRepository.save(product1);

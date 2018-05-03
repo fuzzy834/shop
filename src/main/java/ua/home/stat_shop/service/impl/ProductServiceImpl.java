@@ -14,7 +14,6 @@ import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
 import ua.home.stat_shop.service.ProductService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,17 +74,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void addTemporalProductAttribute(String productId, String attributeId, String valueId, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        productRepository.addTemporalProductAttribute(productId, attributeId, valueId, startDateTime, endDateTime);
-    }
-
-    @Override
     public void deleteProductAttribute(String productId, String attributeId) {
         productRepository.deleteProductAttribute(productId, attributeId);
     }
 
     @Override
-    public void createOrUpdateProduct(ProductCreationDto product) {
+    public Product createOrUpdateProduct(ProductCreationDto product) {
         List<Attribute> attributes = Lists.newArrayList(attributeRepository.findAll(product.getAttributeValueMap().keySet()));
         Set<ProductAttribute> productAttributes = attributes.stream().map(attribute -> {
             AttributeValue value = attribute.getAttributeValues().stream().filter(attributeValue ->
@@ -108,6 +102,18 @@ public class ProductServiceImpl implements ProductService {
         if (Objects.nonNull(product.getProductId())) {
             result.setId(product.getProductId());
         }
-        productRepository.save(result);
+        return productRepository.save(result);
+    }
+
+    @Override
+    public void deleteProduct(String productId) {
+        Product product = productRepository.findOne(productId);
+        Category category = categoryRepository.findOne(product.getCategory().getCategoryId());
+        product.getAttributes().forEach(productAttribute -> {
+            Integer oldValue = category.getAttributes().get(productAttribute.getAttributeId());
+            category.getAttributes().replace(productAttribute.getAttributeId(), oldValue, --oldValue);
+        });
+        categoryRepository.save(category);
+        productRepository.delete(product);
     }
 }

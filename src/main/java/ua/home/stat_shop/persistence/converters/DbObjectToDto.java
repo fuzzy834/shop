@@ -23,7 +23,7 @@ public class DbObjectToDto {
         BasicDBObject category = (BasicDBObject) dbObject.get("category");
         BasicDBList attributes = (BasicDBList) dbObject.get("attributes");
 
-        return new ProductDto(
+        ProductDto product = new ProductDto(
                 dbObject.get("_id").toString(),
                 localizedName.getString(lang),
                 localizedDescription.getString(lang),
@@ -33,6 +33,13 @@ public class DbObjectToDto {
                 getCategoryNameFromProduct(category, lang),
                 getAttributesFromProduct(attributes, lang)
         );
+
+        if (dbObject.containsField("discount")) {
+            BasicDBObject discount = (BasicDBObject) dbObject.get("discount");
+            product.setDiscount(discount.getInt("percentOff"));
+        }
+
+        return product;
     }
 
     private static String getCategoryNameFromProduct(BasicDBObject category, String lang) {

@@ -2,6 +2,7 @@ package ua.home.stat_shop.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import ua.home.stat_shop.persistence.domain.Product;
 import ua.home.stat_shop.persistence.dto.ProductCreationDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
@@ -22,9 +23,9 @@ public interface ProductService {
 
     void addProductAttribute(String productId, String attributeId, String valueId);
 
-    void addTemporalProductAttribute(String productId, String attributeId, String valueId, LocalDateTime startDateTime, LocalDateTime endDateTime);
-
     void deleteProductAttribute(String productId, String attributeId);
 
-    void createOrUpdateProduct(ProductCreationDto product);
+    Product createOrUpdateProduct(ProductCreationDto product);
+
+    void deleteProduct(String productId);
 }

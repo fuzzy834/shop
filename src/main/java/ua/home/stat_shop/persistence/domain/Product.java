@@ -21,6 +21,7 @@ public class Product {
     private ProductCategory category;
     private Set<ProductAttribute> attributes;
     private ProductBase productBase;
+    private Discount discount;
 
     public Product(ProductBase productBase, ProductCategory category, Set<ProductAttribute> attributes) {
         this.productBase = productBase;

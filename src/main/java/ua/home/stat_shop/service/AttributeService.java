@@ -12,4 +12,6 @@ public interface AttributeService {
     List<AttributeDto> findAttributesByIds(String lang, Set<String> ids);
 
     List<AttributeDto> findAllAttributes(String lang);
+
+    void deleteAttribute(String attributeId);
 }
