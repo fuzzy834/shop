@@ -1,12 +1,15 @@
 package ua.home.stat_shop.service.impl;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.home.stat_shop.persistence.domain.*;
+import ua.home.stat_shop.persistence.domain.Attribute;
+import ua.home.stat_shop.persistence.domain.Category;
+import ua.home.stat_shop.persistence.domain.Product;
+import ua.home.stat_shop.persistence.domain.ProductAttribute;
+import ua.home.stat_shop.persistence.domain.ProductCategory;
 import ua.home.stat_shop.persistence.dto.ProductCreationDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
@@ -19,7 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -48,11 +50,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDto> findProductByAttributes(String lang, List<String> attributes, List<String> values, Pageable pageable) {
-        Map<String, String> ids = IntStream.range(0, attributes.size())
-                .mapToObj(i -> Maps.immutableEntry(attributes.get(i), values.get(i)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return productRepository.findProductByAttributes(lang, ids, pageable);
+    public Page<ProductDto> findProductByAttributes(String lang, Map<String, Set<String>> attributes, Pageable pageable) {
+        return productRepository.findProductByAttributes(lang, attributes, pageable);
     }
 
     @Override
@@ -61,16 +60,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDto> findProductByAttributesAndCategory(String lang, List<String> attributes, List<String> values, String categoryId, Pageable pageable) {
-        Map<String, String> ids = IntStream.range(0, attributes.size())
-                .mapToObj(i -> Maps.immutableEntry(attributes.get(i), values.get(i)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return productRepository.findProductByCategoryAndAttributes(lang, ids, categoryId, pageable);
+    public Page<ProductDto> findProductByAttributesAndCategory(String lang, Map<String, Set<String>> attributes, String categoryId, Pageable pageable) {
+        return productRepository.findProductByCategoryAndAttributes(lang, attributes, categoryId, pageable);
     }
 
     @Override
-    public void addProductAttribute(String productId, String attributeId, String valueId) {
-        productRepository.addProductAttribute(productId, attributeId, valueId);
+    public void addProductAttribute(String productId, String attributeId, Set<String> values) {
+        productRepository.addProductAttribute(productId, attributeId, values);
     }
 
     @Override
@@ -80,13 +76,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createOrUpdateProduct(ProductCreationDto product) {
-        List<Attribute> attributes = Lists.newArrayList(attributeRepository.findAll(product.getAttributeValueMap().keySet()));
-        Set<ProductAttribute> productAttributes = attributes.stream().map(attribute -> {
-            AttributeValue value = attribute.getAttributeValues().stream().filter(attributeValue ->
-                    attributeValue.getId().equals(product.getAttributeValueMap().get(attribute.getId())))
-                    .findFirst().orElse(null);
-            return new ProductAttribute(attribute, value);
-        }).collect(Collectors.toSet());
+        List<Attribute> attributes = Lists.newArrayList(attributeRepository
+                .findAll(product.getAttributeValueMap().keySet()));
+        Set<ProductAttribute> productAttributes = attributes.stream().map
+                (attribute -> new ProductAttribute(attribute, attribute.getAttributeValues().stream().filter(value ->
+                        product.getAttributeValueMap().get(attribute.getId()).contains(value.getId()))
+                        .collect(Collectors.toSet()))).collect(Collectors.toSet());
         Category category = categoryRepository.findOne(product.getCategory());
         category.getAttributes().forEach((k, v) -> {
             if (category.getAttributes().containsKey(k)) {

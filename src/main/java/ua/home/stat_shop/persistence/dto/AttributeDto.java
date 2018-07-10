@@ -1,11 +1,17 @@
 package ua.home.stat_shop.persistence.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.Set;
 
+@Component
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,9 +22,9 @@ public class AttributeDto implements Serializable {
 
     String attributeId;
 
-    String name;
+    NameDto name;
 
     Integer priority;
 
-    Map<String, String> values;
+    Set<AttributeValueDto> values;
 }

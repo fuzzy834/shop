@@ -3,42 +3,71 @@ package ua.home.stat_shop.persistence.bootstrap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
+import ua.home.stat_shop.persistence.constants.Constants;
 import ua.home.stat_shop.persistence.constants.LangCodes;
-import ua.home.stat_shop.persistence.domain.*;
+import ua.home.stat_shop.persistence.converters.DtoConstructor;
+import ua.home.stat_shop.persistence.domain.Attribute;
+import ua.home.stat_shop.persistence.domain.AttributeName;
+import ua.home.stat_shop.persistence.domain.AttributeValue;
+import ua.home.stat_shop.persistence.domain.Category;
+import ua.home.stat_shop.persistence.domain.Discount;
+import ua.home.stat_shop.persistence.domain.Language;
+import ua.home.stat_shop.persistence.domain.LocalizedAttributeName;
+import ua.home.stat_shop.persistence.domain.LocalizedAttributeValue;
+import ua.home.stat_shop.persistence.domain.NotLocalizedAttributeName;
+import ua.home.stat_shop.persistence.domain.NotLocalizedAttributeValue;
+import ua.home.stat_shop.persistence.domain.Product;
+import ua.home.stat_shop.persistence.domain.ProductAttribute;
+import ua.home.stat_shop.persistence.domain.ProductBase;
+import ua.home.stat_shop.persistence.domain.ProductCategory;
+import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
+import ua.home.stat_shop.persistence.repository.LanguageRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
 
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-public class ApplicationInitListener implements ApplicationListener<ContextRefreshedEvent> {
+public class ApplicationInitListener {
 
     private CategoryRepository categoryRepository;
     private AttributeRepository attributeRepository;
     private ProductRepository productRepository;
+    private LanguageRepository languageRepository;
+    private DtoConstructor dtoConstructor;
 
     @Autowired
-    public ApplicationInitListener(CategoryRepository categoryRepository, AttributeRepository attributeRepository, ProductRepository productRepository) {
+    public ApplicationInitListener(CategoryRepository categoryRepository,
+                                   AttributeRepository attributeRepository,
+                                   ProductRepository productRepository,
+                                   LanguageRepository languageRepository,
+                                   DtoConstructor dtoConstructor) {
         this.categoryRepository = categoryRepository;
         this.attributeRepository = attributeRepository;
         this.productRepository = productRepository;
+        this.languageRepository = languageRepository;
+        this.dtoConstructor = dtoConstructor;
     }
 
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
-        initDbData();
-    }
+    @EventListener
+    private void initDbData(ContextRefreshedEvent contextRefreshedEvent) {
 
-    private void initDbData() {
         categoryRepository.deleteAll();
         attributeRepository.deleteAll();
         productRepository.deleteAll();
+        productRepository.deleteAll();
+        languageRepository.deleteAll();
+
+        languageRepository.save(new Language(Constants.FALLBACK_LOCALE));
+        LocaleContextHolder.setLocale(Constants.FALLBACK_LOCALE);
 
         AttributeName attributeName1 = new NotLocalizedAttributeName("ololo");
         attributeName1.setPriority(3);
@@ -101,9 +130,9 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
                 )
         );
 
-        ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, notLocalizedAttribute.getAttributeValues().iterator().next());
-        ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, localizedNamesAttribute.getAttributeValues().iterator().next());
-        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues().iterator().next());
+        ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, notLocalizedAttribute.getAttributeValues());
+        ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, localizedNamesAttribute.getAttributeValues());
+        ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues());
 
         Category categoryParent = new Category(
                 ImmutableMap.of(
@@ -137,7 +166,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         Category category2 = new Category(
                 ImmutableMap.of(
-                        LangCodes.EN.getCode(), "Category Three",
+//                        LangCodes.EN.getCode(), "Category Three",
                         LangCodes.UKR.getCode(), "Категорія Три",
                         LangCodes.RUS.getCode(), "Категория Три"
                 ), category
@@ -147,7 +176,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         Category category3 = new Category(
                 ImmutableMap.of(
-                        LangCodes.EN.getCode(), "Category Four",
+//                        LangCodes.EN.getCode(), "Category Four",
                         LangCodes.UKR.getCode(), "Категорія Чотири",
                         LangCodes.RUS.getCode(), "Категория Четыре"
                 ), category
@@ -157,7 +186,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         Category separateCategory = new Category(
                 ImmutableMap.of(
-                        LangCodes.EN.getCode(), "Separate Category",
+//                        LangCodes.EN.getCode(), "Separate Category",
                         LangCodes.UKR.getCode(), "Окрема Категорія",
                         LangCodes.RUS.getCode(), "Отдельная Категория"
                 )
@@ -167,7 +196,7 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         Category separateCategory1 = new Category(
                 ImmutableMap.of(
-                        LangCodes.EN.getCode(), "Separate Category 1",
+//                        LangCodes.EN.getCode(), "Separate Category 1",
                         LangCodes.UKR.getCode(), "Окрема Категорія 1",
                         LangCodes.RUS.getCode(), "Отдельная Категория 1"
                 ), separateCategory
@@ -234,8 +263,10 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
         ProductAttribute attr = product.getAttributes().iterator().next();
         ProductAttribute attr1 = product1.getAttributes().iterator().next();
-        productRepository.addProductAttribute(product.getId(), attr.getAttributeId(), attr.getValue().getId());
-        productRepository.addProductAttribute(product.getId(), attr1.getAttributeId(), attr1.getValue().getId());
+        productRepository.addProductAttribute(product.getId(), attr.getAttributeId(),
+                attr1.getValues().stream().map(AttributeValue::getId).collect(Collectors.toSet()));
+        productRepository.addProductAttribute(product.getId(), attr1.getAttributeId(),
+                attr1.getValues().stream().map(AttributeValue::getId).collect(Collectors.toSet()));
         productRepository.changeAttributePriority(product.getId(), attribute2.getAttributeId(), 25);
     }
 }

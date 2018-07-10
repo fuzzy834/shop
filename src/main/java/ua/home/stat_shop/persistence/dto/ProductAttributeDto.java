@@ -1,7 +1,13 @@
 package ua.home.stat_shop.persistence.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,7 +21,7 @@ public class ProductAttributeDto {
 
     private Integer priority;
 
-    private String name;
+    private NameDto name;
 
-    private String value;
+    private Set<AttributeValueDto> values;
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum LangCodes {
 
-    UKR("ukr"), RUS("rus"), EN("en");
+    UKR("uk-UA"), RUS("ru-RU"), EN("en-US");
 
     private String code;
 

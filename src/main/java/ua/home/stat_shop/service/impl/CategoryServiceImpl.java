@@ -1,6 +1,5 @@
 package ua.home.stat_shop.service.impl;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import ua.home.stat_shop.persistence.repository.ProductRepository;
 import ua.home.stat_shop.service.CategoryService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;

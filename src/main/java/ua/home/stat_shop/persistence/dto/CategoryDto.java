@@ -1,9 +1,14 @@
 package ua.home.stat_shop.persistence.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -16,11 +21,11 @@ public class CategoryDto implements Serializable {
 
     String id;
 
-    String name;
+    NameDto name;
 
     String parent;
 
-    Set<AttributeDto> attributes;
+    Map<String, Integer> attributes;
 
     Set<CategoryDto> children;
 

@@ -21,6 +21,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    @CrossOrigin
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAllCategories(@PathVariable String lang) {
 

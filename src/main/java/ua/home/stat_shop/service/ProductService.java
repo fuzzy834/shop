@@ -6,8 +6,8 @@ import ua.home.stat_shop.persistence.domain.Product;
 import ua.home.stat_shop.persistence.dto.ProductCreationDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface ProductService {
 
@@ -15,13 +15,13 @@ public interface ProductService {
 
     Page<ProductDto> findAll(String lang, Pageable pageable);
 
-    Page<ProductDto> findProductByAttributes(String lang, List<String> attributes, List<String> values, Pageable pageable);
+    Page<ProductDto> findProductByAttributes(String lang, Map<String, Set<String>> attributes, Pageable pageable);
 
     Page<ProductDto> findProductByCategory(String lang, String id, Pageable pageable);
 
-    Page<ProductDto> findProductByAttributesAndCategory(String lang, List<String> attributes, List<String> values, String categoryId, Pageable pageable);
+    Page<ProductDto> findProductByAttributesAndCategory(String lang, Map<String, Set<String>> attributes, String categoryId, Pageable pageable);
 
-    void addProductAttribute(String productId, String attributeId, String valueId);
+    void addProductAttribute(String productId, String attributeId, Set<String> values);
 
     void deleteProductAttribute(String productId, String attributeId);
 

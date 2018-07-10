@@ -20,6 +20,7 @@ public class AttributeController {
         this.attributeService = attributeService;
     }
 
+    @CrossOrigin
     @GetMapping
     public ResponseEntity<List<AttributeDto>> getAllAttributes(@PathVariable String lang,
                                                                @RequestParam(value = "attributes", required = false) Set<String> attributes) {

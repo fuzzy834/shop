@@ -1,7 +1,11 @@
 package ua.home.stat_shop.persistence.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,9 +20,9 @@ public class ProductDto implements Serializable {
 
     private String id;
 
-    private String name;
+    private NameDto name;
 
-    private String description;
+    private NameDto description;
 
     private Double retailPrice;
 
@@ -28,12 +32,12 @@ public class ProductDto implements Serializable {
 
     private String currency;
 
-    private String category;
+    private NameDto category;
 
     private List<ProductAttributeDto> attributes;
 
-    public ProductDto(String id, String name, String description, Double retailPrice,
-                      Double bulkPrice, String currency, String category,
+    public ProductDto(String id, NameDto name, NameDto description, Double retailPrice,
+                      Double bulkPrice, String currency, NameDto category,
                       List<ProductAttributeDto> attributes) {
         this.id = id;
         this.name = name;
