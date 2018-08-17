@@ -7,15 +7,16 @@ import lombok.Setter;
 import ua.home.stat_shop.persistence.annotations.DTOField;
 import ua.home.stat_shop.persistence.annotations.DTOType;
 import ua.home.stat_shop.persistence.dto.AttributeDto;
+import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@DTOType(dtoTypes = {AttributeDto.class, ProductDto.class})
-public class NotLocalizedAttributeValue extends AttributeValue {
+@DTOType(dtoTypes = {ProductDto.class, CategoryDto.class, AttributeDto.class})
+public class NotLocalizedField extends Field {
 
-    @DTOField(dtoTypes = {AttributeDto.class, ProductDto.class})
-    private String nonLocalizedValue;
+    @DTOField(dtoTypes = {ProductDto.class, CategoryDto.class, AttributeDto.class})
+    private String nonLocalizedField;
 }

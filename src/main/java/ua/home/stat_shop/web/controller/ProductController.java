@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
-@RequestMapping("/{lang}/products")
+@RequestMapping("/products")
 public class ProductController {
 
     private ProductService productService;
@@ -36,38 +36,35 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductDto>> getAllProducts(@PathVariable String lang,
-                                                           @PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ProductDto>> getAllProducts(@PageableDefault Pageable pageable) {
 
-        return ResponseEntity.ok(productService.findAll(lang, pageable));
+        return ResponseEntity.ok(productService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> findProduct(@PathVariable String lang,
-                                                  @PathVariable String id) {
+    public ResponseEntity<ProductDto> findProduct(@PathVariable String id) {
 
-        return ResponseEntity.ok(productService.findAttributeById(lang, id));
+        return ResponseEntity.ok(productService.findAttributeById(id));
     }
 
     @GetMapping("/category/{id}")
-    public ResponseEntity<Page<ProductDto>> getProductsByCategory(@PathVariable String lang,
-                                                                  @PathVariable String id,
+    public ResponseEntity<Page<ProductDto>> getProductsByCategory(@PathVariable String id,
                                                                   @PageableDefault Pageable pageable) {
 
-        Page<ProductDto> products = productService.findProductByCategory(lang, id, pageable);
+        Page<ProductDto> products = productService.findProductByCategory(id, pageable);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/attributes")
     public ResponseEntity<Page<ProductDto>> getProductsByAttributes(HttpServletRequest request,
-                                                                    @PathVariable String lang,
                                                                     @PageableDefault Pageable pageable) {
 
         Map<String, Set<String>> attributes = request.getParameterMap().entrySet().stream()
                 .filter(param ->
                         !param.getKey().equals("page")
-                                || !param.getKey().equals("sort")
-                                || !param.getKey().equals("size")
+                                && !param.getKey().equals("sort")
+                                && !param.getKey().equals("size")
+                                && !param.getKey().equals("lang")
                 ).map(attribute ->
                         Maps.immutableEntry(
                                 attribute.getKey(),
@@ -76,21 +73,21 @@ public class ProductController {
                                         .collect(Collectors.toSet())
                         )
                 ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Page<ProductDto> products = productService.findProductByAttributes(lang, attributes, pageable);
+        Page<ProductDto> products = productService.findProductByAttributes(attributes, pageable);
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/category/{id}/attributes")
     public ResponseEntity<Page<ProductDto>> getProductsByCategoryAndAttributes(HttpServletRequest request,
-                                                                               @PathVariable String lang,
                                                                                @PathVariable String id,
                                                                                @PageableDefault Pageable pageable) {
 
         Map<String, Set<String>> attributes = request.getParameterMap().entrySet().stream()
                 .filter(param ->
                         !param.getKey().equals("page")
-                                || !param.getKey().equals("sort")
-                                || !param.getKey().equals("size")
+                                && !param.getKey().equals("sort")
+                                && !param.getKey().equals("size")
+                                && !param.getKey().equals("lang")
                 ).map(attribute ->
                         Maps.immutableEntry(
                                 attribute.getKey(),
@@ -99,7 +96,7 @@ public class ProductController {
                                         .collect(Collectors.toSet())
                         )
                 ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Page<ProductDto> products = productService.findProductByAttributesAndCategory(lang, attributes, id, pageable);
+        Page<ProductDto> products = productService.findProductByAttributesAndCategory(attributes, id, pageable);
         return ResponseEntity.ok(products);
     }
 

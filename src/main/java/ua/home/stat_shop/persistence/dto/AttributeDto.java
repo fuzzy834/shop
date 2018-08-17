@@ -22,7 +22,7 @@ public class AttributeDto implements Serializable {
 
     String attributeId;
 
-    NameDto name;
+    FieldDto name;
 
     Integer priority;
 

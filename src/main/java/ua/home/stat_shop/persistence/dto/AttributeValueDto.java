@@ -13,5 +13,5 @@ public class AttributeValueDto {
 
     private String id;
     private String quantity;
-    private boolean translated;
+    private FieldDto fieldDto;
 }

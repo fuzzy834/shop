@@ -7,11 +7,11 @@ import java.util.Set;
 
 public interface AttributeRepositoryCustom {
 
-    List<AttributeDto> findAllAttributes(String lang);
+    List<AttributeDto> findAllAttributes();
 
-    AttributeDto findAttributeById(String lang, String id);
+    AttributeDto findAttributeById(String id);
 
-    List<AttributeDto> findAttributeByIds(String lang, Set<String> ids);
+    List<AttributeDto> findAttributeByIds(Set<String> ids);
 
-    List<AttributeDto> findAttributesByCategory(String lang, String categoryId);
+    List<AttributeDto> findAttributesByCategory(String categoryId);
 }

@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface CategoryService {
 
-    CategoryDto findCategoryById(String lang, String id);
+    CategoryDto findCategoryById(String id);
 
-    List<CategoryDto> findAllCategories(String lang);
+    List<CategoryDto> findAllCategories();
 
-    Category createUpdateCategory(CategoryCreationDto categoryCreationDto);
+    String createUpdateCategory(CategoryCreationDto categoryCreationDto);
 
     void deleteCategory(String categoryId, boolean deleteWithProducts);
 

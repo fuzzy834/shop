@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import ua.home.stat_shop.persistence.annotations.DTOField;
 import ua.home.stat_shop.persistence.annotations.DTOType;
 import ua.home.stat_shop.persistence.dto.AttributeDto;
+import ua.home.stat_shop.persistence.dto.ProductDto;
 
 import java.util.Set;
 
@@ -22,11 +23,13 @@ public class Attribute {
     @DTOField(dtoTypes = AttributeDto.class)
     private String id;
     @DTOField(dtoTypes = AttributeDto.class)
-    private AttributeName attributeName;
+    private Field attributeName;
     @DTOField(dtoTypes = AttributeDto.class)
     private Set<AttributeValue> attributeValues;
+    @DTOField(dtoTypes = AttributeDto.class)
+    private Integer priority;
 
-    public Attribute(AttributeName attributeName, Set<AttributeValue> attributeValues) {
+    public Attribute(Field attributeName, Set<AttributeValue> attributeValues) {
         this.attributeName = attributeName;
         this.attributeValues = attributeValues;
     }

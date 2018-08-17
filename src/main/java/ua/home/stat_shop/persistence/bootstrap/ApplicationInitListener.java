@@ -10,20 +10,7 @@ import org.springframework.stereotype.Component;
 import ua.home.stat_shop.persistence.constants.Constants;
 import ua.home.stat_shop.persistence.constants.LangCodes;
 import ua.home.stat_shop.persistence.converters.DtoConstructor;
-import ua.home.stat_shop.persistence.domain.Attribute;
-import ua.home.stat_shop.persistence.domain.AttributeName;
-import ua.home.stat_shop.persistence.domain.AttributeValue;
-import ua.home.stat_shop.persistence.domain.Category;
-import ua.home.stat_shop.persistence.domain.Discount;
-import ua.home.stat_shop.persistence.domain.Language;
-import ua.home.stat_shop.persistence.domain.LocalizedAttributeName;
-import ua.home.stat_shop.persistence.domain.LocalizedAttributeValue;
-import ua.home.stat_shop.persistence.domain.NotLocalizedAttributeName;
-import ua.home.stat_shop.persistence.domain.NotLocalizedAttributeValue;
-import ua.home.stat_shop.persistence.domain.Product;
-import ua.home.stat_shop.persistence.domain.ProductAttribute;
-import ua.home.stat_shop.persistence.domain.ProductBase;
-import ua.home.stat_shop.persistence.domain.ProductCategory;
+import ua.home.stat_shop.persistence.domain.*;
 import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
 import ua.home.stat_shop.persistence.repository.CategoryRepository;
@@ -33,6 +20,7 @@ import ua.home.stat_shop.persistence.repository.ProductRepository;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -69,56 +57,55 @@ public class ApplicationInitListener {
         languageRepository.save(new Language(Constants.FALLBACK_LOCALE));
         LocaleContextHolder.setLocale(Constants.FALLBACK_LOCALE);
 
-        AttributeName attributeName1 = new NotLocalizedAttributeName("ololo");
-        attributeName1.setPriority(3);
+        Field attributeName1 = new NotLocalizedField("Колір");
         Attribute notLocalizedAttribute = new Attribute(
                 attributeName1, ImmutableSet.of(
-                new NotLocalizedAttributeValue("tototo"),
-                new NotLocalizedAttributeValue("tatata"),
-                new NotLocalizedAttributeValue("tititi")
+                new AttributeValue(new NotLocalizedField("Синій")),
+                new AttributeValue(new NotLocalizedField("Чорний")),
+                new AttributeValue(new NotLocalizedField("Червоний"))
         )
         );
 
-        AttributeName attributeName2 = new LocalizedAttributeName(ImmutableMap.of(
-                LangCodes.EN.getCode(), "hahaha",
-                LangCodes.UKR.getCode(), "hohoho",
-                LangCodes.RUS.getCode(), "hihihi"
+        Field attributeName2 = new LocalizedField(ImmutableMap.of(
+                LangCodes.EN.getCode(), "Type",
+                LangCodes.UKR.getCode(), "Тип",
+                LangCodes.RUS.getCode(), "Тип"
         ));
-        attributeName2.setPriority(2);
+
         Attribute localizedNamesAttribute = new Attribute(
                 attributeName2, ImmutableSet.of(
-                new NotLocalizedAttributeValue("bububu"),
-                new NotLocalizedAttributeValue("bababa"),
-                new NotLocalizedAttributeValue("bibibi")
+                new AttributeValue(new NotLocalizedField("bububu")),
+                new AttributeValue(new NotLocalizedField("bababa")),
+                new AttributeValue(new NotLocalizedField("bibibi"))
         )
         );
 
-        AttributeValue attributeValueWithQuantity = new LocalizedAttributeValue(ImmutableMap.of(
+        AttributeValue attributeValueWithQuantity = new AttributeValue(new LocalizedField(ImmutableMap.of(
                 LangCodes.EN.getCode(), "rororo",
                 LangCodes.UKR.getCode(), "rarara",
                 LangCodes.RUS.getCode(), "rerere"
-        ));
+        )));
         attributeValueWithQuantity.setQuantity(20);
 
-        AttributeName attributeName3 = new LocalizedAttributeName(ImmutableMap.of(
+        Field attributeName3 = new LocalizedField(ImmutableMap.of(
                 LangCodes.EN.getCode(), "dedede",
                 LangCodes.UKR.getCode(), "dadada",
                 LangCodes.RUS.getCode(), "dododo"
         ));
-        attributeName3.setPriority(1);
+
         Attribute localizedNamesAndValuesAtrribute = new Attribute(
                 attributeName3, ImmutableSet.of(
                 attributeValueWithQuantity,
-                new LocalizedAttributeValue(ImmutableMap.of(
+                new AttributeValue(new LocalizedField(ImmutableMap.of(
                         LangCodes.EN.getCode(), "sesese",
                         LangCodes.UKR.getCode(), "sasasa",
                         LangCodes.RUS.getCode(), "sososo"
-                )),
-                new LocalizedAttributeValue(ImmutableMap.of(
+                ))),
+                new AttributeValue(new LocalizedField(ImmutableMap.of(
                         LangCodes.EN.getCode(), "xexexe",
                         LangCodes.UKR.getCode(), "xaxaxa",
                         LangCodes.RUS.getCode(), "xixixi"
-                ))
+                )))
         )
         );
 
@@ -130,107 +117,103 @@ public class ApplicationInitListener {
                 )
         );
 
+        Set<String> attributeIds = attributes.stream().map(Attribute::getId).collect(Collectors.toSet());
+
         ProductAttribute attribute1 = new ProductAttribute(notLocalizedAttribute, notLocalizedAttribute.getAttributeValues());
         ProductAttribute attribute2 = new ProductAttribute(localizedNamesAttribute, localizedNamesAttribute.getAttributeValues());
         ProductAttribute attribute3 = new ProductAttribute(localizedNamesAndValuesAtrribute, localizedNamesAndValuesAtrribute.getAttributeValues());
 
-        Category categoryParent = new Category(
+        Category categoryParent = new Category(new LocalizedField(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category Zero",
                         LangCodes.UKR.getCode(), "Категорія Нуль",
                         LangCodes.RUS.getCode(), "Категория Ноль"
-                )
+                ))
         );
-
+        categoryParent.setAttributes(attributeIds);
         categoryParent = categoryRepository.save(categoryParent);
 
-        Category category = new Category(
+        Category category = new Category(new LocalizedField(
                 ImmutableMap.of(
                         LangCodes.EN.getCode(), "Category One",
                         LangCodes.UKR.getCode(), "Категорія Один",
                         LangCodes.RUS.getCode(), "Категория Один"
-                ), categoryParent
+                )), categoryParent
         );
-
+        category.setAttributes(attributeIds);
         categoryRepository.save(category);
 
-        Category category1 = new Category(
-                ImmutableMap.of(
-                        LangCodes.EN.getCode(), "Category Two",
-                        LangCodes.UKR.getCode(), "Категорія Два",
-                        LangCodes.RUS.getCode(), "Категория Два"
-                ), category
-        );
+        Category category1 = new Category(new NotLocalizedField("Not Localized Category 1"),
+                category);
 
+        category1.setAttributes(attributeIds);
         categoryRepository.save(category1);
 
-        Category category2 = new Category(
-                ImmutableMap.of(
-//                        LangCodes.EN.getCode(), "Category Three",
-                        LangCodes.UKR.getCode(), "Категорія Три",
-                        LangCodes.RUS.getCode(), "Категория Три"
-                ), category
-        );
+        Category category2 = new Category(new NotLocalizedField("Not Localized Category 2"),
+                category);
 
+        category2.setAttributes(attributeIds);
         categoryRepository.save(category2);
 
-        Category category3 = new Category(
+        Category category3 = new Category(new LocalizedField(
                 ImmutableMap.of(
-//                        LangCodes.EN.getCode(), "Category Four",
+                        LangCodes.EN.getCode(), "Category Four",
                         LangCodes.UKR.getCode(), "Категорія Чотири",
                         LangCodes.RUS.getCode(), "Категория Четыре"
-                ), category
+                )), category
         );
 
+        category3.setAttributes(attributeIds);
         categoryRepository.save(category3);
 
-        Category separateCategory = new Category(
+        Category separateCategory = new Category(new LocalizedField(
                 ImmutableMap.of(
-//                        LangCodes.EN.getCode(), "Separate Category",
+                        LangCodes.EN.getCode(), "Separate Category",
                         LangCodes.UKR.getCode(), "Окрема Категорія",
                         LangCodes.RUS.getCode(), "Отдельная Категория"
-                )
+                ))
         );
-
+        separateCategory.setAttributes(attributeIds);
         categoryRepository.save(separateCategory);
 
-        Category separateCategory1 = new Category(
+        Category separateCategory1 = new Category(new LocalizedField(
                 ImmutableMap.of(
-//                        LangCodes.EN.getCode(), "Separate Category 1",
+                        LangCodes.EN.getCode(), "Separate Category 1",
                         LangCodes.UKR.getCode(), "Окрема Категорія 1",
                         LangCodes.RUS.getCode(), "Отдельная Категория 1"
-                ), separateCategory
+                )), separateCategory
         );
 
+        separateCategory1.setAttributes(attributeIds);
         categoryRepository.save(separateCategory1);
 
         ProductBase productBase = new ProductBase(
-                ImmutableMap.of(
+                new LocalizedField(ImmutableMap.of(
                         LangCodes.EN.getCode(), "product1",
                         LangCodes.UKR.getCode(), "продукт1",
                         LangCodes.RUS.getCode(), "продукт1"
-                ),
-                ImmutableMap.of(
+                )),
+                new LocalizedField(ImmutableMap.of(
                         LangCodes.EN.getCode(), "product1",
                         LangCodes.UKR.getCode(), "продукт1",
                         LangCodes.RUS.getCode(), "продукт1"
-                ),
+                )),
                 1000d,
                 9999d,
                 "UAH"
         );
 
         ProductBase productBase1 = new ProductBase(
-                ImmutableMap.of(
+                new LocalizedField(ImmutableMap.of(
                         LangCodes.EN.getCode(), "product2",
                         LangCodes.UKR.getCode(), "продукт2",
                         LangCodes.RUS.getCode(), "продукт2"
-                ),
-                ImmutableMap.of(
+                )),
+                new LocalizedField(ImmutableMap.of(
                         LangCodes.EN.getCode(), "product2",
                         LangCodes.UKR.getCode(), "продукт2",
                         LangCodes.RUS.getCode(), "продукт2"
-                ),
+                )),
                 1000d,
                 9999d,
                 "UAH"

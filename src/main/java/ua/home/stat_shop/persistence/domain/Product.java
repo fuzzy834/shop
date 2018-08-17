@@ -31,6 +31,10 @@ public class Product {
     private ProductBase productBase;
     @DTOField(dtoTypes = ProductDto.class)
     private Discount discount;
+    @DTOField(dtoTypes = ProductDto.class)
+    private Set<Image> images;
+    @DTOField(dtoTypes = ProductDto.class)
+    private String videoUrl;
 
     public Product(ProductBase productBase, ProductCategory category, Set<ProductAttribute> attributes) {
         this.productBase = productBase;

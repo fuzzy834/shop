@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface CategoryRepositoryCustom {
 
-    CategoryDto findCategoryById(String lang, String id);
+    CategoryDto findCategoryById(String id);
 
-    List<CategoryDto> findAllCategories(String lang);
+    List<CategoryDto> findAllCategories();
 
-    List<Category> findChildren(String id);
+    List<Category> findAncestors(Category category);
 
     List<Category> findCategoriesByAttribute(String attributeId);
+
+    List<Category> findCategoriesByParent(String parentId);
 }

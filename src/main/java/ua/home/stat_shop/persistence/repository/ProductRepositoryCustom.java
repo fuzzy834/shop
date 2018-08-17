@@ -12,17 +12,21 @@ import java.util.Set;
 
 public interface ProductRepositoryCustom {
 
-    ProductDto findProductById(String lang, String id);
+    ProductDto findProductById(String id);
 
-    Page<ProductDto> findAllProducts(String lang, Pageable pageable);
+    Page<ProductDto> findAllProducts(Pageable pageable);
 
-    Page<ProductDto> findProductByCategory(String lang, String categoryId, Pageable pageable);
+    Page<ProductDto> findProductByCategory(String categoryId, Pageable pageable);
+
+    Page<ProductDto> findProductByGeneralCategory(List<String> ids, Pageable pageable);
 
     List<Product> findProductByCategory(String categoryId);
 
-    Page<ProductDto> findProductByAttributes(String lang, Map<String, Set<String>> ids, Pageable pageable);
+    Page<ProductDto> findProductByAttributes(Map<String, Set<String>> ids, Pageable pageable);
 
-    Page<ProductDto> findProductByCategoryAndAttributes(String lang, Map<String, Set<String>> attributes, String categoryId, Pageable pageable);
+    Page<ProductDto> findProductByCategoryAndAttributes(Map<String, Set<String>> attributes, String categoryId, Pageable pageable);
+
+    Page<ProductDto> findProductByGeneralCategoryAndAttributes(Map<String, Set<String>> attributes, List<String> categoryIds, Pageable pageable);
 
     void addProductAttribute(String productId, String attributeId, Set<String> values);
 

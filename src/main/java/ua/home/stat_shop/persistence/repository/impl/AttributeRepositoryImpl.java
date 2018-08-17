@@ -34,27 +34,26 @@ public class AttributeRepositoryImpl implements AttributeRepositoryCustom {
     }
 
     @Override
-    public List<AttributeDto> findAllAttributes(String lang) {
+    public List<AttributeDto> findAllAttributes() {
         Query query = Query.query(Criteria.where("_class").is(Attribute.class.getName()));
         return getAttributeDtosFromQuery(query);
     }
 
     @Override
-    public AttributeDto findAttributeById(String lang, String id) {
+    public AttributeDto findAttributeById(String id) {
         Query query = Query.query(Criteria.where("_id").is(id));
         return getAttributeDtosFromQuery(query).stream().findFirst().orElse(null);
     }
 
     @Override
-    public List<AttributeDto> findAttributeByIds(String lang, Set<String> ids) {
+    public List<AttributeDto> findAttributeByIds(Set<String> ids) {
         Query query = Query.query(Criteria.where("_id").in(ids));
         return getAttributeDtosFromQuery(query);
     }
 
     @Override
-    public List<AttributeDto> findAttributesByCategory(String lang, String categoryId) {
-        Query categoryQuery = Query.query(new Criteria().orOperator(Criteria.where("_id").is(categoryId),
-                Criteria.where("ancestors").is(categoryId)));
+    public List<AttributeDto> findAttributesByCategory(String categoryId) {
+        Query categoryQuery = Query.query(Criteria.where("_id").is(categoryId));
         categoryQuery.fields().include("attributes");
         categoryQuery.fields().exclude("_id");
         Set<String> ids = Sets.newHashSet();

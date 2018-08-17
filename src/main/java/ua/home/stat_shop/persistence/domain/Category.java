@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import ua.home.stat_shop.persistence.annotations.DTOField;
 import ua.home.stat_shop.persistence.annotations.DTOType;
@@ -27,32 +28,24 @@ public class Category {
     @DTOField(dtoTypes = {CategoryDto.class})
     private Boolean subCategory;
 
+    @DBRef
     @DTOField(dtoTypes = {CategoryDto.class}, refToSelf = "id")
     private Category parent;
 
-    private Set<String> ancestors;
-
-    @DTOField(dtoTypes = {CategoryDto.class}, i18n = true)
-    private Map<String, String> localizedNames;
+    @DTOField(dtoTypes = {CategoryDto.class})
+    private Field categoryName;
 
     @DTOField(dtoTypes = {CategoryDto.class})
-    private Map<String, Integer> attributes = new HashMap<>();
+    private Set<String> attributes = new HashSet<>();
 
-    public Category(Map<String, String> localizedNames) {
+    public Category(Field name) {
         this.subCategory = false;
-        this.localizedNames = localizedNames;
+        this.categoryName = name;
     }
 
-    public Category(Map<String, String> localizedNames, Category parent) {
+    public Category(Field name, Category parent) {
         this.subCategory = true;
         this.parent = parent;
-        this.localizedNames = localizedNames;
-        if (Objects.isNull(this.ancestors)) {
-            ancestors = new HashSet<>();
-        }
-        this.ancestors.add(parent.getId());
-        if (!Objects.isNull(parent.getAncestors()) && !parent.getAncestors().isEmpty()) {
-            this.ancestors.addAll(parent.getAncestors());
-        }
+        this.categoryName = name;
     }
 }

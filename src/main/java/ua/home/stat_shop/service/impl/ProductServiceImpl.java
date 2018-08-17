@@ -5,11 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.home.stat_shop.persistence.domain.Attribute;
-import ua.home.stat_shop.persistence.domain.Category;
-import ua.home.stat_shop.persistence.domain.Product;
-import ua.home.stat_shop.persistence.domain.ProductAttribute;
-import ua.home.stat_shop.persistence.domain.ProductCategory;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import ua.home.stat_shop.persistence.constants.Constants;
+import ua.home.stat_shop.persistence.domain.*;
 import ua.home.stat_shop.persistence.dto.ProductCreationDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 import ua.home.stat_shop.persistence.repository.AttributeRepository;
@@ -17,11 +15,17 @@ import ua.home.stat_shop.persistence.repository.CategoryRepository;
 import ua.home.stat_shop.persistence.repository.ProductRepository;
 import ua.home.stat_shop.service.ProductService;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -40,28 +44,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto findAttributeById(String lang, String id) {
-        return productRepository.findProductById(lang, id);
+    public ProductDto findAttributeById(String id) {
+        return productRepository.findProductById(id);
     }
 
     @Override
-    public Page<ProductDto> findAll(String lang, Pageable pageable) {
-        return productRepository.findAllProducts(lang, pageable);
+    public Page<ProductDto> findAll(Pageable pageable) {
+        return productRepository.findAllProducts(pageable);
     }
 
     @Override
-    public Page<ProductDto> findProductByAttributes(String lang, Map<String, Set<String>> attributes, Pageable pageable) {
-        return productRepository.findProductByAttributes(lang, attributes, pageable);
+    public Page<ProductDto> findProductByAttributes(Map<String, Set<String>> attributes, Pageable pageable) {
+        return productRepository.findProductByAttributes(attributes, pageable);
     }
 
     @Override
-    public Page<ProductDto> findProductByCategory(String lang, String id, Pageable pageable) {
-        return productRepository.findProductByCategory(lang, id, pageable);
+    public Page<ProductDto> findProductByCategory(String id, Pageable pageable) {
+        return productRepository.findProductByCategory(id, pageable);
     }
 
     @Override
-    public Page<ProductDto> findProductByAttributesAndCategory(String lang, Map<String, Set<String>> attributes, String categoryId, Pageable pageable) {
-        return productRepository.findProductByCategoryAndAttributes(lang, attributes, categoryId, pageable);
+    public Page<ProductDto> findProductByAttributesAndCategory(Map<String, Set<String>> attributes, String categoryId, Pageable pageable) {
+        return productRepository.findProductByCategoryAndAttributes(attributes, categoryId, pageable);
     }
 
     @Override
@@ -83,32 +87,54 @@ public class ProductServiceImpl implements ProductService {
                         product.getAttributeValueMap().get(attribute.getId()).contains(value.getId()))
                         .collect(Collectors.toSet()))).collect(Collectors.toSet());
         Category category = categoryRepository.findOne(product.getCategory());
-        category.getAttributes().forEach((k, v) -> {
-            if (category.getAttributes().containsKey(k)) {
-                Integer oldValue = category.getAttributes().get(k);
-                category.getAttributes().replace(k, oldValue, ++oldValue);
-            } else {
-                category.getAttributes().put(k, 1);
-            }
-        });
-        categoryRepository.save(category);
         ProductCategory productCategory = new ProductCategory(category);
         Product result = new Product(product.getProductBase(), productCategory, productAttributes);
+        Set<Image> images = Stream.of(product.getImages())
+                .filter(Objects::nonNull)
+                .map(this::transferProductImage)
+                .collect(Collectors.toSet());
         if (Objects.nonNull(product.getProductId())) {
             result.setId(product.getProductId());
+            result.getImages().stream()
+                    .filter(image ->
+                            images.stream().noneMatch(img -> img.getPath().equals(image.getPath()))
+                    ).forEach(image -> {
+                            boolean deleted = Paths.get(image.getPath()).toFile().delete();
+                            System.out.println(deleted);
+                        }
+                    );
         }
+
+        result.setImages(images);
         return productRepository.save(result);
+    }
+
+    private Image transferProductImage(CommonsMultipartFile file) {
+        URL imagesUrl = getClass().getClassLoader().getResource(Constants.IMAGES_FOLDER);
+        if (Objects.nonNull(imagesUrl)) {
+            String imagesPath = imagesUrl.getPath();
+            String imagePath = imagesPath + File.separator + file.getName();
+            try {
+                if (Files.notExists(Paths.get(imagePath))) {
+                    file.transferTo(new File(imagePath));
+                    Image image = new Image();
+                    image.setPath(imagePath);
+                    image.setSize(file.getSize());
+                    image.setType(file.getContentType());
+                    return image;
+                }
+                return null;
+            } catch (IOException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     @Override
     public void deleteProduct(String productId) {
         Product product = productRepository.findOne(productId);
-        Category category = categoryRepository.findOne(product.getCategory().getCategoryId());
-        product.getAttributes().forEach(productAttribute -> {
-            Integer oldValue = category.getAttributes().get(productAttribute.getAttributeId());
-            category.getAttributes().replace(productAttribute.getAttributeId(), oldValue, --oldValue);
-        });
-        categoryRepository.save(category);
         productRepository.delete(product);
     }
 }

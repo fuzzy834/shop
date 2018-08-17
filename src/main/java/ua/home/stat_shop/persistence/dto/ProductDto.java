@@ -6,9 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ua.home.stat_shop.persistence.domain.Image;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,9 +22,9 @@ public class ProductDto implements Serializable {
 
     private String id;
 
-    private NameDto name;
+    private FieldDto name;
 
-    private NameDto description;
+    private FieldDto description;
 
     private Double retailPrice;
 
@@ -32,12 +34,16 @@ public class ProductDto implements Serializable {
 
     private String currency;
 
-    private NameDto category;
+    private FieldDto category;
 
     private List<ProductAttributeDto> attributes;
 
-    public ProductDto(String id, NameDto name, NameDto description, Double retailPrice,
-                      Double bulkPrice, String currency, NameDto category,
+    private Set<Image> images;
+
+    private String videoUrl;
+
+    public ProductDto(String id, FieldDto name, FieldDto description, Double retailPrice,
+                      Double bulkPrice, String currency, FieldDto category,
                       List<ProductAttributeDto> attributes) {
         this.id = id;
         this.name = name;

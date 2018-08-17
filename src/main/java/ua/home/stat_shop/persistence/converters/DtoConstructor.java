@@ -1,10 +1,12 @@
 package ua.home.stat_shop.persistence.converters;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.stereotype.Component;
 import ua.home.stat_shop.persistence.annotations.AnnotationUtil;
 import ua.home.stat_shop.persistence.annotations.DTOField;
@@ -12,11 +14,7 @@ import ua.home.stat_shop.persistence.annotations.DTOType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -27,6 +25,8 @@ public class DtoConstructor {
     @Value("#{'${available.locales}'.split(',')}")
     private List<String> availableLocales;
 
+    private List<String> includePaths = new LinkedList<>();
+
     @Autowired
     public DtoConstructor(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -34,7 +34,6 @@ public class DtoConstructor {
 
     @SuppressWarnings("unchecked")
     public List<String> getIncludedFields(Class dtoType) {
-        List<String> includePaths = new LinkedList<>();
         Map<Class, List<Field>> annotatedMap = AnnotationUtil.findAnnotatedBeans(applicationContext, DTOType.class).stream()
                 .filter(object -> {
                     Class[] dtoTypes = object.getClass().getAnnotation(DTOType.class).dtoTypes();
@@ -53,7 +52,7 @@ public class DtoConstructor {
                 .flatMap(entry -> entry.getValue().stream())
                 .filter(this::isFieldClosing)
                 .collect(Collectors.toList());
-
+        fields.forEach(f -> System.out.println(f.getName()));
         for (Field field : fields) {
             boolean i18n = field.getAnnotation(DTOField.class).i18n();
             if (i18n) {
@@ -76,6 +75,8 @@ public class DtoConstructor {
             fieldName = "_" + fieldName;
         }
         if (typeAnnotation.base() && !field.getType().equals(fieldDeclaringClass)) {
+            return fieldName;
+        } else if (field.isAnnotationPresent(DBRef.class)) {
             return fieldName;
         } else if (field.getType().equals(fieldDeclaringClass) && !fieldAnnotation.refToSelf().isEmpty()) {
             String refToSelf = fieldAnnotation.refToSelf();
@@ -109,15 +110,20 @@ public class DtoConstructor {
 
     private boolean isFieldClosing(Field field) {
         Class type = field.getType();
+        Set<Class> basicTypes = ImmutableSet.of(String.class, Boolean.class, Character.class);
         DTOField annotation = field.getAnnotation(DTOField.class);
-        return type.isPrimitive()
-                || Number.class.isAssignableFrom(type)
-                || type.equals(String.class)
-                || type.equals(Character.class)
-                || type.equals(Boolean.class)
-                || (!annotation.i18n() && Map.class.isAssignableFrom(type))
-                || annotation.i18n()
-                || field.getType().equals(field.getDeclaringClass());
+        if (Collection.class.isAssignableFrom(type)) {
+            ParameterizedType genericType = (ParameterizedType) field.getGenericType();
+            Class genericClass = (Class) genericType.getActualTypeArguments()[0];
+            return basicTypes.contains(genericClass) || Number.class.isAssignableFrom(genericClass);
+        } else {
+            return type.isPrimitive()
+                    || Number.class.isAssignableFrom(type)
+                    || basicTypes.contains(type)
+                    || (!annotation.i18n() && Map.class.isAssignableFrom(type))
+                    || annotation.i18n()
+                    || field.getType().equals(field.getDeclaringClass());
+        }
     }
 
     private Field getParentField(List<Field> fields, Class fieldDeclaringClass) {

@@ -11,15 +11,15 @@ import java.util.Set;
 
 public interface ProductService {
 
-    ProductDto findAttributeById(String lang, String id);
+    ProductDto findAttributeById(String id);
 
-    Page<ProductDto> findAll(String lang, Pageable pageable);
+    Page<ProductDto> findAll(Pageable pageable);
 
-    Page<ProductDto> findProductByAttributes(String lang, Map<String, Set<String>> attributes, Pageable pageable);
+    Page<ProductDto> findProductByAttributes(Map<String, Set<String>> attributes, Pageable pageable);
 
-    Page<ProductDto> findProductByCategory(String lang, String id, Pageable pageable);
+    Page<ProductDto> findProductByCategory(String id, Pageable pageable);
 
-    Page<ProductDto> findProductByAttributesAndCategory(String lang, Map<String, Set<String>> attributes, String categoryId, Pageable pageable);
+    Page<ProductDto> findProductByAttributesAndCategory(Map<String, Set<String>> attributes, String categoryId, Pageable pageable);
 
     void addProductAttribute(String productId, String attributeId, Set<String> values);
 

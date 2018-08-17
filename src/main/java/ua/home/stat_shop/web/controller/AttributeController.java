@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/{lang}/attributes")
+@RequestMapping("/attributes")
 public class AttributeController {
 
     private AttributeService attributeService;
@@ -22,20 +22,18 @@ public class AttributeController {
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity<List<AttributeDto>> getAllAttributes(@PathVariable String lang,
-                                                               @RequestParam(value = "attributes", required = false) Set<String> attributes) {
+    public ResponseEntity<List<AttributeDto>> getAllAttributes(@RequestParam(value = "attributes", required = false) Set<String> attributes) {
 
         if (null == attributes) {
-            return ResponseEntity.ok(attributeService.findAllAttributes(lang));
+            return ResponseEntity.ok(attributeService.findAllAttributes());
         } else {
-            return ResponseEntity.ok(attributeService.findAttributesByIds(lang, attributes));
+            return ResponseEntity.ok(attributeService.findAttributesByIds(attributes));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AttributeDto> getAttributesById(@PathVariable String lang,
-                                                          @PathVariable String id) {
+    public ResponseEntity<AttributeDto> getAttributesById(@PathVariable String id) {
 
-        return ResponseEntity.ok(attributeService.findAttributeById(lang, id));
+        return ResponseEntity.ok(attributeService.findAttributeById(id));
     }
 }

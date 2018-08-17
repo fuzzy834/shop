@@ -28,18 +28,18 @@ public class AttributeServiceImpl implements AttributeService {
     }
 
     @Override
-    public AttributeDto findAttributeById(String lang, String id) {
-        return attributeRepository.findAttributeById(lang, id);
+    public AttributeDto findAttributeById(String id) {
+        return attributeRepository.findAttributeById(id);
     }
 
     @Override
-    public List<AttributeDto> findAttributesByIds(String lang, Set<String> ids) {
-        return attributeRepository.findAttributeByIds(lang, ids);
+    public List<AttributeDto> findAttributesByIds(Set<String> ids) {
+        return attributeRepository.findAttributeByIds(ids);
     }
 
     @Override
-    public List<AttributeDto> findAllAttributes(String lang) {
-        return attributeRepository.findAllAttributes(lang);
+    public List<AttributeDto> findAllAttributes() {
+        return attributeRepository.findAllAttributes();
     }
 
     @Override

@@ -11,7 +11,7 @@ import ua.home.stat_shop.service.CategoryService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/{lang}/categories")
+@RequestMapping("/categories")
 public class CategoryController {
 
     private CategoryService categoryService;
@@ -23,20 +23,20 @@ public class CategoryController {
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> getAllCategories(@PathVariable String lang) {
-
-        return ResponseEntity.ok(categoryService.findAllCategories(lang));
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.findAllCategories());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable String lang, @PathVariable String id) {
-        return ResponseEntity.ok(categoryService.findCategoryById(lang, id));
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable String id) {
+        return ResponseEntity.ok(categoryService.findCategoryById(id));
     }
 
+    @CrossOrigin
     @DeleteMapping("/{id}/{deleteWithProducts}")
     public ResponseEntity<String> deleteCategory(@PathVariable String id, @PathVariable boolean deleteWithProducts) {
         categoryService.deleteCategory(id, deleteWithProducts);
-        return ResponseEntity.ok(id);
+        return ResponseEntity.ok("");
     }
 
     @DeleteMapping("/{id}/replace/{replacementId}")
@@ -45,13 +45,17 @@ public class CategoryController {
         return ResponseEntity.ok(id);
     }
 
+    @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<Category> createCategory(@RequestBody CategoryCreationDto categoryCreationDto) {
-        return ResponseEntity.ok(categoryService.createUpdateCategory(categoryCreationDto));
+    public ResponseEntity<String> createCategory(@RequestBody CategoryCreationDto categoryCreationDto) {
+        categoryService.createUpdateCategory(categoryCreationDto);
+        return ResponseEntity.ok("");
     }
 
+    @CrossOrigin
     @PutMapping("/edit")
-    public ResponseEntity<Category> editCategory(@RequestBody CategoryCreationDto categoryCreationDto) {
-        return ResponseEntity.ok(categoryService.createUpdateCategory(categoryCreationDto));
+    public ResponseEntity<String> editCategory(@RequestBody CategoryCreationDto categoryCreationDto) {
+        categoryService.createUpdateCategory(categoryCreationDto);
+        return ResponseEntity.ok("");
     }
 }

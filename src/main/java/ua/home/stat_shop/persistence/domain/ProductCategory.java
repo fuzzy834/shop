@@ -8,9 +8,6 @@ import ua.home.stat_shop.persistence.annotations.DTOField;
 import ua.home.stat_shop.persistence.annotations.DTOType;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
-import java.util.Map;
-import java.util.Set;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,14 +18,11 @@ public class ProductCategory {
     @DTOField(dtoTypes = ProductDto.class)
     private String categoryId;
 
-    private Set<String> ancestors;
-
-    @DTOField(dtoTypes = ProductDto.class, i18n = true)
-    private Map<String, String> localizedNames;
+    @DTOField(dtoTypes = ProductDto.class)
+    private Field categoryName;
 
     public ProductCategory(Category category) {
         this.categoryId = category.getId();
-        this.ancestors = category.getAncestors();
-        this.localizedNames = category.getLocalizedNames();
+        this.categoryName = category.getCategoryName();
     }
 }

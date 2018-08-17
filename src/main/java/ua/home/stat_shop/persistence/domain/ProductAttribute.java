@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ua.home.stat_shop.persistence.annotations.DTOField;
 import ua.home.stat_shop.persistence.annotations.DTOType;
+import ua.home.stat_shop.persistence.dto.AttributeDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
 import java.util.Set;
@@ -25,7 +26,7 @@ public class ProductAttribute {
     @DTOField(dtoTypes = ProductDto.class)
     private Integer priority;
     @DTOField(dtoTypes = ProductDto.class)
-    private AttributeName name;
+    private Field name;
     @DTOField(dtoTypes = ProductDto.class)
     private Set<AttributeValue> values;
     private Set<String> valueIds;
@@ -33,7 +34,7 @@ public class ProductAttribute {
     public ProductAttribute(Attribute attribute, Set<AttributeValue> values) {
         this.attributeId = attribute.getId();
         this.temporal = false;
-        this.priority = attribute.getAttributeName().getPriority();
+        this.priority = attribute.getPriority();
         this.name = attribute.getAttributeName();
         this.values = values;
         this.valueIds = this.values.stream().map(AttributeValue::getId).collect(Collectors.toSet());

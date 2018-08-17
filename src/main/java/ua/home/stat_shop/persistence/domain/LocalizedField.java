@@ -7,6 +7,7 @@ import lombok.Setter;
 import ua.home.stat_shop.persistence.annotations.DTOField;
 import ua.home.stat_shop.persistence.annotations.DTOType;
 import ua.home.stat_shop.persistence.dto.AttributeDto;
+import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.dto.ProductDto;
 
 import java.util.Map;
@@ -15,9 +16,9 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@DTOType(dtoTypes = {AttributeDto.class, ProductDto.class})
-public class LocalizedAttributeName extends AttributeName {
+@DTOType(dtoTypes = {ProductDto.class, CategoryDto.class, AttributeDto.class})
+public class LocalizedField extends Field {
 
-    @DTOField(dtoTypes = {AttributeDto.class, ProductDto.class}, i18n = true)
-    private Map<String, String> localizedName;
+    @DTOField(dtoTypes = {ProductDto.class, CategoryDto.class, AttributeDto.class}, i18n = true)
+    private Map<String, String> localizedField;
 }

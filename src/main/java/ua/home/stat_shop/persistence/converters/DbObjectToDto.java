@@ -5,12 +5,22 @@ import com.google.common.collect.Sets;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import com.mongodb.DBRef;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ua.home.stat_shop.persistence.dto.*;
+import ua.home.stat_shop.persistence.domain.Image;
+import ua.home.stat_shop.persistence.dto.AttributeDto;
+import ua.home.stat_shop.persistence.dto.AttributeValueDto;
+import ua.home.stat_shop.persistence.dto.CategoryDto;
+import ua.home.stat_shop.persistence.dto.LocalizedFieldDto;
+import ua.home.stat_shop.persistence.dto.FieldDto;
+import ua.home.stat_shop.persistence.dto.NonLocalizedFieldDto;
+import ua.home.stat_shop.persistence.dto.ProductAttributeDto;
+import ua.home.stat_shop.persistence.dto.ProductDto;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,20 +31,20 @@ public class DbObjectToDto {
 
     public static ProductDto getProductDto(DBObject dbObject) {
         BasicDBObject productBase = (BasicDBObject) dbObject.get("productBase");
-        BasicDBObject localizedName = (BasicDBObject) productBase.get("localizedProductName");
-        BasicDBObject localizedDescription = (BasicDBObject) productBase.get("localizedProductDescription");
+        BasicDBObject localizedName = (BasicDBObject) productBase.get("productName");
+        BasicDBObject localizedDescription = (BasicDBObject) productBase.get("productDescription");
         BasicDBObject category = (BasicDBObject) dbObject.get("category");
-        BasicDBObject categoryNameObj = (BasicDBObject) category.get("localizedNames");
+        BasicDBObject categoryNameObj = (BasicDBObject) category.get("categoryName");
         BasicDBList attributes = (BasicDBList) dbObject.get("attributes");
 
         ProductDto product = new ProductDto(
                 dbObject.get("_id").toString(),
-                new LocalizedNameDto(getLocalizedFieldValue(localizedName)),
-                new LocalizedNameDto(getLocalizedFieldValue(localizedDescription)),
+                new LocalizedFieldDto(getLocalizedFieldValue(localizedName)),
+                new LocalizedFieldDto(getLocalizedFieldValue(localizedDescription)),
                 productBase.getDouble("retailPrice"),
                 productBase.getDouble("bulkPrice"),
                 productBase.getString("currency"),
-                new LocalizedNameDto(getLocalizedFieldValue(categoryNameObj)),
+                new LocalizedFieldDto(getLocalizedFieldValue(categoryNameObj)),
                 getAttributesFromProduct(attributes)
         );
 
@@ -43,6 +53,24 @@ public class DbObjectToDto {
             product.setDiscount(discount.getInt("percentOff"));
         }
 
+        if (dbObject.containsField("images")) {
+            BasicDBList images = (BasicDBList) dbObject.get("images");
+            Set<Image> imagePaths =  images.stream()
+                    .map(image -> {
+                               BasicDBObject imageDbObj = (BasicDBObject) image;
+                               Image img = new Image();
+                               img.setPath(imageDbObj.getString("path"));
+                               img.setSize(imageDbObj.getLong("size"));
+                               img.setType(imageDbObj.getString("type"));
+                               return img;
+                            }
+                    )
+                    .collect(Collectors.toSet());
+            product.setImages(imagePaths);
+        }
+        if (dbObject.containsField("videoUrl")) {
+            product.setVideoUrl(dbObject.get("videoUrl").toString());
+        }
         return product;
     }
 
@@ -51,14 +79,7 @@ public class DbObjectToDto {
             String id = ((BasicDBObject) attribute).getString("attributeId");
             Object nameObj = ((BasicDBObject) attribute).get("name");
             BasicDBObject nameDbObj = (BasicDBObject) nameObj;
-            NameDto name;
-            if (nameDbObj.containsField("nonLocalizedName")) {
-                String nameStr = nameDbObj.getString("nonLocalizedName");
-                name = new NonLocalizedNameDto(nameStr);
-            } else {
-                BasicDBObject localizedName = (BasicDBObject) nameDbObj.get("localizedName");
-                name = new LocalizedNameDto(getLocalizedFieldValue(localizedName));
-            }
+            FieldDto name = getNameDto(nameDbObj);
             Integer priority = ((BasicDBObject) attribute).getInt("priority", 0);
             Object valueObj = ((BasicDBObject) attribute).get("values");
             BasicDBList valuesDbList = (BasicDBList) valueObj;
@@ -69,10 +90,11 @@ public class DbObjectToDto {
                 AttributeValueDto value;
                 if (valueDbObj.containsField("nonLocalizedValue")) {
                     String nonLocalizedValue = quantity + valueDbObj.getString("nonLocalizedValue");
-                    value = new AttributeNonLocalizedValueDto(valueId, quantity, nonLocalizedValue);
+                    value = new AttributeValueDto(valueId, quantity, new NonLocalizedFieldDto(nonLocalizedValue));
                 } else {
                     BasicDBObject localizedValues = (BasicDBObject) valueDbObj.get("localizedValue");
-                    value = new AttributeLocalizedValueDto(valueId, quantity, getLocalizedFieldValue(localizedValues));
+                    value = new AttributeValueDto(valueId, quantity,
+                            new LocalizedFieldDto(getLocalizedFieldValue(localizedValues)));
                 }
                 return value;
             }).collect(Collectors.toSet());
@@ -85,15 +107,30 @@ public class DbObjectToDto {
         String subCategory = dbObject.get("subCategory").toString();
         CategoryDto category = new CategoryDto();
         category.setId(dbObject.get("_id").toString());
-        BasicDBObject localizedNames = (BasicDBObject) dbObject.get("localizedNames");
-        category.setName(new LocalizedNameDto(getLocalizedFieldValue(localizedNames)));
+        BasicDBObject categoryName = (BasicDBObject) dbObject.get("categoryName");
+        FieldDto name;
+        name = getNameDto(categoryName);
+        category.setName(name);
         category.setChildren(Sets.newHashSet());
-        BasicDBObject attributes = (BasicDBObject) dbObject.get("attributes");
-        category.setAttributes(attributes.toMap());
-        if (Boolean.valueOf(subCategory)) {
-            category.setParent(((BasicDBObject) dbObject.get("parent")).getString("_id"));
+        BasicDBList attributes = (BasicDBList) dbObject.get("attributes");
+        category.setAttributes(attributes.stream().filter(Objects::nonNull).map(String.class::cast).collect(Collectors.toSet()));
+        DBRef parent = (DBRef) dbObject.get("parent");
+        if (Objects.nonNull(parent)) {
+            category.setParent(parent.getId().toString());
         }
         return category;
+    }
+
+    private static FieldDto getNameDto(BasicDBObject nameObj) {
+        FieldDto name;
+        if (nameObj.containsField("nonLocalizedField")) {
+            String nameStr = nameObj.getString("nonLocalizedField");
+            name = new NonLocalizedFieldDto(nameStr);
+        } else {
+            BasicDBObject localizedName = (BasicDBObject) nameObj.get("localizedField");
+            name = new LocalizedFieldDto(getLocalizedFieldValue(localizedName));
+        }
+        return name;
     }
 
     public static AttributeDto getAttributeDto(DBObject dbObject) {
@@ -102,11 +139,11 @@ public class DbObjectToDto {
 
         BasicDBObject attributeName = (BasicDBObject) dbObject.get("attributeName");
 
-        if (attributeName.containsField("nonLocalizedName")) {
-            attribute.setName(new NonLocalizedNameDto(attributeName.getString("nonLocalizedName")));
+        if (attributeName.containsField("nonLocalizedField")) {
+            attribute.setName(new NonLocalizedFieldDto(attributeName.getString("nonLocalizedField")));
         } else {
-            BasicDBObject localizedNames = (BasicDBObject) attributeName.get("localizedName");
-            attribute.setName(new LocalizedNameDto(getLocalizedFieldValue(localizedNames)));
+            BasicDBObject localizedNames = (BasicDBObject) attributeName.get("localizedField");
+            attribute.setName(new LocalizedFieldDto(getLocalizedFieldValue(localizedNames)));
         }
 
         attribute.setPriority(attributeName.getInt("priority", 0));
@@ -119,10 +156,13 @@ public class DbObjectToDto {
                     String quantity = valueObj.containsField("quantity") ? valueObj.getString("quantity") : "";
                     String id = valueObj.getString("_id");
                     if (valueObj.containsField("nonLocalizedValue")) {
-                        return new AttributeNonLocalizedValueDto(id, quantity, valueObj.getString("nonLocalizedValue"));
+                        return new AttributeValueDto(
+                                id, quantity,
+                                new NonLocalizedFieldDto(valueObj.getString("nonLocalizedValue")));
                     } else {
                         BasicDBObject localizedValues = (BasicDBObject) valueObj.get("localizedValue");
-                        return new AttributeLocalizedValueDto(id, quantity, getLocalizedFieldValue(localizedValues));
+                        return new AttributeValueDto(id, quantity,
+                                new LocalizedFieldDto(getLocalizedFieldValue(localizedValues)));
                     }
                 }
         ).collect(Collectors.toSet());

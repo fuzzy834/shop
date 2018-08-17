@@ -7,11 +7,11 @@ import java.util.Set;
 
 public interface AttributeService {
 
-    AttributeDto findAttributeById(String lang, String id);
+    AttributeDto findAttributeById(String id);
 
-    List<AttributeDto> findAttributesByIds(String lang, Set<String> ids);
+    List<AttributeDto> findAttributesByIds(Set<String> ids);
 
-    List<AttributeDto> findAllAttributes(String lang);
+    List<AttributeDto> findAllAttributes();
 
     void deleteAttribute(String attributeId);
 }

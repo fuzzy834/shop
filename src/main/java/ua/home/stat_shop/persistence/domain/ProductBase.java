@@ -17,10 +17,10 @@ import java.util.Map;
 @DTOType(dtoTypes = ProductDto.class)
 public class ProductBase {
 
-    @DTOField(dtoTypes = ProductDto.class, i18n = true)
-    private Map<String, String> localizedProductName;
-    @DTOField(dtoTypes = ProductDto.class, i18n = true)
-    private Map<String, String> localizedProductDescription;
+    @DTOField(dtoTypes = ProductDto.class)
+    private Field productName;
+    @DTOField(dtoTypes = ProductDto.class)
+    private Field productDescription;
     @DTOField(dtoTypes = ProductDto.class)
     private Double retailPrice;
     @DTOField(dtoTypes = ProductDto.class)

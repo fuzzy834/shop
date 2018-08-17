@@ -8,8 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -21,12 +20,11 @@ public class CategoryDto implements Serializable {
 
     String id;
 
-    NameDto name;
+    FieldDto name;
 
     String parent;
 
-    Map<String, Integer> attributes;
+    Set<String> attributes;
 
     Set<CategoryDto> children;
-
 }

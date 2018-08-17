@@ -21,7 +21,7 @@ public class ProductAttributeDto {
 
     private Integer priority;
 
-    private NameDto name;
+    private FieldDto name;
 
     private Set<AttributeValueDto> values;
 }

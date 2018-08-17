@@ -2,6 +2,7 @@ package ua.home.stat_shop.persistence.repository.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.DocumentCallbackHandler;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,11 +15,7 @@ import ua.home.stat_shop.persistence.domain.Category;
 import ua.home.stat_shop.persistence.dto.CategoryDto;
 import ua.home.stat_shop.persistence.repository.CategoryRepositoryCustom;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -34,18 +31,21 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     }
 
     @Override
-    public CategoryDto findCategoryById(String lang, String id) {
-        Criteria criteria = new Criteria();
-        Query query = Query.query(criteria.orOperator(Criteria.where("_id").is(id), Criteria.where("ancestors").is(id)));
-        List<CategoryDto> categoryDtoList = getCategoryDtosFromQuery(query);
-        if (categoryDtoList.size() == 1) {
-            return categoryDtoList.get(0);
+    public CategoryDto findCategoryById(String id) {
+        Query query = Query.query(Criteria.where("_class").is(Category.class.getName()));
+        List<CategoryDto> categoryDtoLists = getCategoryDtosFromQuery(query);
+        CategoryDto category = categoryDtoLists.stream()
+                .filter(categoryDto -> categoryDto.getId().equals(id))
+                .findFirst().orElse(null);
+        if (Objects.nonNull(category)) {
+            return groupByParent(categoryDtoLists, Collections.singleton(category.getId())).get(0);
+        } else {
+            return null;
         }
-        return groupByParent(categoryDtoList, Collections.singleton(id)).stream().findFirst().orElse(null);
     }
 
     @Override
-    public List<CategoryDto> findAllCategories(String lang) {
+    public List<CategoryDto> findAllCategories() {
         Query query = Query.query(Criteria.where("_class").is(Category.class.getName()));
         List<CategoryDto> categoryDtoLists = getCategoryDtosFromQuery(query);
         Set<String> roots = categoryDtoLists.stream().filter(categoryDto -> Objects.isNull(categoryDto.getParent()))
@@ -54,14 +54,25 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     }
 
     @Override
-    public List<Category> findChildren(String id) {
-        Query query = Query.query(Criteria.where("_class").is(Category.class.getName()).and("ancestors").is(id));
-        return mongoTemplate.find(query, Category.class);
+    public List<Category> findAncestors(Category category) {
+        List<Category> ancestors = new LinkedList<>();
+        Category parent = category.getParent();
+        while (Objects.nonNull(parent)) {
+            ancestors.add(parent);
+            parent = parent.getParent();
+        }
+        return ancestors;
     }
 
     @Override
     public List<Category> findCategoriesByAttribute(String attributeId) {
         Query query = Query.query(Criteria.where("attributes." + attributeId).exists(true));
+        return mongoTemplate.find(query, Category.class);
+    }
+
+    @Override
+    public List<Category> findCategoriesByParent(String parentId) {
+        Query query = Query.query(Criteria.where("parent.$id").is(new ObjectId(parentId)));
         return mongoTemplate.find(query, Category.class);
     }
 

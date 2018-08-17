@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import ua.home.stat_shop.persistence.converters.DbObjectToDto;
 import ua.home.stat_shop.persistence.converters.DtoConstructor;
 import ua.home.stat_shop.persistence.domain.Attribute;
@@ -44,23 +45,26 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public ProductDto findProductById(String lang, String id) {
+    public ProductDto findProductById(String id) {
         Query query = Query.query(Criteria.where("_id").is(id));
         return getProductDtosFromQuery(query).stream().findFirst().orElse(null);
     }
 
     @Override
-    public Page<ProductDto> findAllProducts(String lang, Pageable pageable) {
+    public Page<ProductDto> findAllProducts(Pageable pageable) {
         Query query = Query.query(Criteria.where("_class").is(Product.class.getName()));
         return PageableExecutionUtils.getPage(getProductDtosFromQuery(query), pageable, () -> mongoTemplate.count(query, Product.class));
     }
 
     @Override
-    public Page<ProductDto> findProductByCategory(String lang, String categoryId, Pageable pageable) {
-        Criteria criteria = new Criteria();
-        Criteria firstOption = Criteria.where("category.categoryId").is(categoryId);
-        Criteria secondOption = Criteria.where("category.ancestors").is(categoryId);
-        Query query = Query.query(criteria.orOperator(firstOption, secondOption));
+    public Page<ProductDto> findProductByCategory(String categoryId, Pageable pageable) {
+        Query query = Query.query(Criteria.where("category.categoryId").is(categoryId));
+        return PageableExecutionUtils.getPage(getProductDtosFromQuery(query), pageable, () -> mongoTemplate.count(query, Product.class));
+    }
+
+    @Override
+    public Page<ProductDto> findProductByGeneralCategory(List<String> ids, Pageable pageable) {
+        Query query = Query.query(Criteria.where("category.categoryId").in(ids));
         return PageableExecutionUtils.getPage(getProductDtosFromQuery(query), pageable, () -> mongoTemplate.count(query, Product.class));
     }
 
@@ -71,7 +75,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<ProductDto> findProductByAttributes(String lang, Map<String, Set<String>> ids, Pageable pageable) {
+    public Page<ProductDto> findProductByAttributes(Map<String, Set<String>> ids, Pageable pageable) {
         Query query = new Query();
         Criteria criteria = new Criteria();
         query.addCriteria(criteria.andOperator(
@@ -86,17 +90,25 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<ProductDto> findProductByCategoryAndAttributes(String lang, Map<String, Set<String>> attributes, String categoryId, Pageable pageable) {
+    public Page<ProductDto> findProductByCategoryAndAttributes(Map<String, Set<String>> attributes, String categoryId, Pageable pageable) {
         Criteria criteria = new Criteria();
-        Criteria firstOption = Criteria.where("category.categoryId").is(categoryId);
-        Criteria secondOption = Criteria.where("category.ancestors").is(categoryId);
         Criteria[] attributeCriteria = attributes.entrySet().stream().map(attr -> Criteria.where("attributes")
-                .elemMatch(Criteria.where("attributeId")
-                        .is(attr.getKey())
-                        .and("valuesIds").all(attr.getValue())))
+                .elemMatch(Criteria.where("attributeId").is(attr.getKey()).and("valuesIds").all(attr.getValue())))
                 .distinct().toArray(Criteria[]::new);
         Criteria[] allCriteria = Arrays.copyOf(attributeCriteria, attributeCriteria.length + 1);
-        allCriteria[attributeCriteria.length] = criteria.orOperator(firstOption, secondOption);
+        allCriteria[attributeCriteria.length] = Criteria.where("category.categoryId").is(categoryId);
+        Query query = Query.query(criteria.andOperator(allCriteria));
+        return PageableExecutionUtils.getPage(getProductDtosFromQuery(query), pageable, () -> mongoTemplate.count(query, Product.class));
+    }
+
+    @Override
+    public Page<ProductDto> findProductByGeneralCategoryAndAttributes(Map<String, Set<String>> attributes, List<String> categoryIds, Pageable pageable) {
+        Criteria criteria = new Criteria();
+        Criteria[] attributeCriteria = attributes.entrySet().stream().map(attr -> Criteria.where("attributes")
+                .elemMatch(Criteria.where("attributeId").is(attr.getKey()).and("valuesIds").all(attr.getValue())))
+                .distinct().toArray(Criteria[]::new);
+        Criteria[] allCriteria = Arrays.copyOf(attributeCriteria, attributeCriteria.length + 1);
+        allCriteria[attributeCriteria.length] = Criteria.where("category.categoryId").in(categoryIds);
         Query query = Query.query(criteria.andOperator(allCriteria));
         return PageableExecutionUtils.getPage(getProductDtosFromQuery(query), pageable, () -> mongoTemplate.count(query, Product.class));
     }
@@ -107,12 +119,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         Set<AttributeValue> attributeValues = attribute.getAttributeValues().stream()
                 .filter(value -> values.contains(value.getId())).collect(Collectors.toSet());
         ProductAttribute productAttribute = new ProductAttribute(attribute, attributeValues);
-        Product product = mongoTemplate.findAndModify(
+        mongoTemplate.findAndModify(
                 Query.query(Criteria.where("_id").is(productId)),
                 new Update().addToSet("attributes", productAttribute),
                 Product.class
         );
-        onProductAttributeListChanged(attributeId, product.getCategory(), 1);
     }
 
     @Override
@@ -126,7 +137,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                             Query.query(Criteria.where("_id").is(productId)),
                             update.pull("attributes", productAttribute),
                             Product.class);
-                    onProductAttributeListChanged(attributeId, product.getCategory(), -1);
+//                    onProductAttributeListChanged(attributeId, product.getCategory(), -1);
                 });
     }
 
@@ -160,15 +171,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<Product> findProductByAttribute(String attributeId) {
         Query query = Query.query(Criteria.where("attributes").elemMatch(Criteria.where("attributeId").is(attributeId)));
         return mongoTemplate.find(query, Product.class);
-    }
-
-    private void onProductAttributeListChanged(String attributeId, ProductCategory productCategory, Integer inc) {
-        if (Objects.isNull(attributeId)) return;
-        Set<String> categories = productCategory.getAncestors();
-        categories.add(productCategory.getCategoryId());
-        Update update = new Update();
-        update.inc("attributes." + attributeId, inc);
-        mongoTemplate.updateMulti(Query.query(Criteria.where("_id").in(categories)), update, Category.class);
     }
 
     private List<ProductDto> getProductDtosFromQuery(Query query) {

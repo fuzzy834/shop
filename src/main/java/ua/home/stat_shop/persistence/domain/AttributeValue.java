@@ -23,7 +23,15 @@ public class AttributeValue {
 
     private String categoryId;
 
+    @DTOField(dtoTypes = {AttributeDto.class, ProductDto.class})
+    private Field value;
+
     public AttributeValue() {
         this.id = UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public AttributeValue(Field value) {
+        this.id = UUID.randomUUID().toString().replace("-", "");
+        this.value = value;
     }
 }
